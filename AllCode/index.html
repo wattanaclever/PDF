@@ -1,0 +1,1897 @@
+<!DOCTYPE html>
+<html lang="th" class="h-full bg-slate-900 text-slate-100">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCC - PDF EDITOR</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts (Sarabun & Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- PDF.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <!-- pdf-lib CDN for seamless PDF exporting -->
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Sarabun', 'Inter', sans-serif;
+        }
+
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        /* Print styles - Clean output matching preview dimensions */
+        @media print {
+            @page {
+                size: auto;
+                margin: 0mm;
+            }
+
+            body,
+            html {
+                background: white !important;
+                color: black !important;
+                width: 100% !important;
+                height: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: visible !important;
+            }
+
+            .no-print,
+            header,
+            nav,
+            aside,
+            .toolbar,
+            #upload-container,
+            .toast,
+            #loading-overlay,
+            #text-formatting-bar {
+                display: none !important;
+            }
+
+            #app-container {
+                display: block !important;
+                position: static !important;
+                height: auto !important;
+                overflow: visible !important;
+            }
+
+            #viewer-scroll-area {
+                overflow: visible !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                background: transparent !important;
+                display: block !important;
+            }
+
+            #pages-wrapper {
+                display: block !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                gap: 0 !important;
+            }
+
+            .page-container {
+                margin: 0 auto !important;
+                box-shadow: none !important;
+                border: none !important;
+                page-break-after: always;
+                page-break-inside: avoid;
+                break-after: page;
+                position: relative !important;
+                left: 0 !important;
+                top: 0 !important;
+            }
+
+            .annotation-textbox {
+                border: none !important;
+                background: transparent !important;
+                box-shadow: none !important;
+            }
+
+            .annotation-textbox .drag-handle,
+            .annotation-textbox .delete-btn,
+            .annotation-textbox .inline-context-menu {
+                display: none !important;
+            }
+
+            .annotation-imagebox {
+                border: none !important;
+                box-shadow: none !important;
+            }
+
+            .annotation-imagebox .img-delete-btn,
+            .annotation-imagebox .img-resize-handle {
+                display: none !important;
+            }
+        }
+
+        /* Clean Text Box Styling - Unselected state shows strictly text only */
+        .annotation-textbox {
+            position: absolute;
+            cursor: move;
+            user-select: none;
+            touch-action: none;
+            min-width: 40px;
+            min-height: 24px;
+            border: 1.5px solid transparent !important;
+            border-radius: 4px;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+            box-sizing: border-box;
+            background-color: transparent;
+            z-index: 30;
+        }
+
+        .annotation-textbox:hover {
+            border: 1.5px dashed rgba(14, 165, 233, 0.4) !important;
+        }
+
+        .annotation-textbox.active-selected {
+            border: 1.5px dashed #0284c7 !important;
+            box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2) !important;
+            z-index: 40 !important;
+        }
+
+        .annotation-textbox .editable-content {
+            outline: none !important;
+            cursor: text;
+            white-space: pre-wrap;
+            word-break: break-word;
+            padding: 2px 4px;
+            min-width: 30px;
+            line-height: 1.2;
+            margin: 0;
+            box-sizing: border-box;
+            user-select: text;
+        }
+
+        .annotation-textbox .delete-btn,
+        .annotation-textbox .drag-handle {
+            display: none;
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            color: white;
+            border-radius: 50%;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+        }
+
+        .annotation-textbox.active-selected .delete-btn,
+        .annotation-textbox.active-selected .drag-handle {
+            display: flex;
+        }
+
+        .annotation-textbox .delete-btn {
+            top: -9px;
+            right: -9px;
+            background: #ef4444;
+        }
+
+        .annotation-textbox .delete-btn:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+
+        .annotation-textbox .drag-handle {
+            top: -9px;
+            left: -9px;
+            background: #0ea5e9;
+            cursor: move;
+        }
+
+        /* Image Box Styling */
+        .annotation-imagebox {
+            position: absolute;
+            cursor: move;
+            user-select: none;
+            touch-action: none;
+            border: 1.5px solid transparent;
+            box-sizing: border-box;
+            z-index: 30;
+        }
+
+        .annotation-imagebox:hover {
+            border: 1.5px dashed rgba(14, 165, 233, 0.5);
+        }
+
+        .annotation-imagebox.active-selected {
+            border: 1.5px dashed #0284c7;
+            box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
+            z-index: 40;
+        }
+
+        .annotation-imagebox img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            pointer-events: none;
+        }
+
+        .annotation-imagebox .img-delete-btn,
+        .annotation-imagebox .img-resize-handle {
+            display: none;
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            color: white;
+            border-radius: 50%;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+        }
+
+        .annotation-imagebox.active-selected .img-delete-btn,
+        .annotation-imagebox.active-selected .img-resize-handle {
+            display: flex;
+        }
+
+        .annotation-imagebox .img-delete-btn {
+            top: -9px;
+            right: -9px;
+            background: #ef4444;
+        }
+
+        .annotation-imagebox .img-delete-btn:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+
+        .annotation-imagebox .img-resize-handle {
+            bottom: -9px;
+            right: -9px;
+            background: #0ea5e9;
+            cursor: nwse-resize;
+        }
+
+        .inline-context-menu {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            border: 1px solid #38bdf8;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 4px 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            z-index: 100;
+            white-space: nowrap;
+            user-select: none;
+        }
+
+        .inline-context-menu::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 5px;
+            border-style: solid;
+            border-color: #38bdf8 transparent transparent transparent;
+        }
+
+        .preset-color-btn {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(255, 255, 255, 0.3);
+            transition: transform 0.1s ease;
+        }
+
+        .preset-color-btn:hover {
+            transform: scale(1.2);
+        }
+    </style>
+</head>
+
+<body class="h-full flex flex-col overflow-hidden select-none">
+
+    <!-- Header Section -->
+    <header
+        class="no-print h-16 bg-slate-800 border-b border-slate-700/80 px-4 flex items-center justify-between shrink-0 shadow-md relative z-30">
+        <div class="flex items-center space-x-3">
+            <div
+                class="p-2.5 bg-brand-600 rounded-xl text-white font-bold flex items-center justify-center shadow-lg shadow-brand-500/20">
+                <i class="fa-solid fa-file-pdf text-xl"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-slate-100 text-base md:text-lg leading-none flex items-center gap-2">
+                    <span>PDF EDITOR</span>
+                    <span
+                        class="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-mono">CCC</span>
+                </h1>
+                <p class="text-xs text-slate-400 mt-1">เครื่องมือแก้ไข PDF</p>
+            </div>
+        </div>
+
+        <!-- Central Quick Actions (Pagination & Zoom & Undo/Redo) -->
+        <div id="pdf-controls"
+            class="hidden flex items-center space-x-2 bg-slate-900/90 p-1.5 rounded-xl border border-slate-700/60 shadow-inner">
+            
+            <!-- Undo / Redo Buttons -->
+            <button id="btn-undo" disabled
+                class="p-2 text-slate-500 hover:text-white hover:bg-slate-700/80 rounded-lg transition opacity-50 cursor-not-allowed"
+                title="ย้อนกลับ (Ctrl+Z)">
+                <i class="fa-solid fa-rotate-left text-xs"></i>
+            </button>
+            <button id="btn-redo" disabled
+                class="p-2 text-slate-500 hover:text-white hover:bg-slate-700/80 rounded-lg transition opacity-50 cursor-not-allowed"
+                title="ทำซ้ำ (Ctrl+Y)">
+                <i class="fa-solid fa-rotate-right text-xs"></i>
+            </button>
+
+            <div class="h-4 w-[1px] bg-slate-700 my-auto mx-0.5"></div>
+
+            <!-- Page Nav -->
+            <button id="btn-prev"
+                class="p-2 text-slate-300 hover:text-white hover:bg-slate-700/80 rounded-lg transition"
+                title="หน้าก่อนหน้า">
+                <i class="fa-solid fa-chevron-left text-xs"></i>
+            </button>
+            <span class="text-xs text-slate-300 px-1 font-mono flex items-center gap-1">
+                <input type="number" id="page-num-input" value="1" min="1"
+                    class="w-10 bg-slate-800 text-center text-white rounded border border-slate-600 focus:outline-none focus:border-brand-500 py-0.5 text-xs font-semibold">
+                <span>/</span>
+                <span id="page-count" class="font-semibold">0</span>
+            </span>
+            <button id="btn-next"
+                class="p-2 text-slate-300 hover:text-white hover:bg-slate-700/80 rounded-lg transition"
+                title="หน้าถัดไป">
+                <i class="fa-solid fa-chevron-right text-xs"></i>
+            </button>
+
+            <div class="h-4 w-[1px] bg-slate-700 my-auto mx-1"></div>
+
+            <!-- Zoom Control -->
+            <button id="btn-zoom-out"
+                class="p-2 text-slate-300 hover:text-white hover:bg-slate-700/80 rounded-lg transition" title="ย่อขนาด">
+                <i class="fa-solid fa-minus text-xs"></i>
+            </button>
+            <span id="zoom-percent" class="text-xs text-slate-300 font-mono w-12 text-center font-semibold">100%</span>
+            <button id="btn-zoom-in"
+                class="p-2 text-slate-300 hover:text-white hover:bg-slate-700/80 rounded-lg transition"
+                title="ขยายขนาด">
+                <i class="fa-solid fa-plus text-xs"></i>
+            </button>
+            <button id="btn-zoom-fit"
+                class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg text-xs font-medium transition border border-slate-700"
+                title="พอดีหน้าจอ">
+                Fit
+            </button>
+        </div>
+
+        <!-- Right Side Action Buttons -->
+        <div class="flex items-center space-x-2">
+            <input type="file" id="file-input" accept="application/pdf" class="hidden">
+            <button id="btn-upload"
+                class="px-3.5 py-2 bg-slate-700 hover:bg-slate-600 text-slate-100 text-xs md:text-sm font-medium rounded-lg transition flex items-center space-x-2 border border-slate-600 shadow-sm">
+                <i class="fa-solid fa-folder-open text-brand-400"></i>
+                <span class="hidden sm:inline">เปิดไฟล์ PDF</span>
+            </button>
+            <button id="btn-print" disabled
+                class="px-3.5 py-2 bg-slate-800 text-slate-500 text-xs md:text-sm font-medium rounded-lg transition flex items-center space-x-2 border border-slate-700 opacity-60 cursor-not-allowed">
+                <i class="fa-solid fa-print"></i>
+                <span class="hidden sm:inline">สั่งพิมพ์</span>
+            </button>
+            <button id="btn-download" disabled
+                class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white text-xs md:text-sm font-semibold rounded-lg transition flex items-center space-x-2 shadow-lg shadow-brand-600/30 opacity-60 cursor-not-allowed">
+                <i class="fa-solid fa-floppy-disk"></i>
+                <span>บันทึกทับไฟล์เดิม</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Floating Text Formatting Toolbar -->
+    <div id="text-formatting-bar"
+        class="no-print hidden absolute top-20 left-1/2 -translate-x-1/2 bg-slate-800/95 backdrop-blur-md border border-brand-500/50 shadow-2xl rounded-2xl px-4 py-2 z-40 flex items-center space-x-3 text-xs text-slate-200">
+        <div class="flex items-center space-x-1 border-r border-slate-700 pr-3">
+            <span class="text-slate-400 text-[11px] me-1"><i
+                    class="fa-solid fa-font text-brand-400 me-1"></i>ขนาด:</span>
+            <input type="number" id="active-font-size" value="18" min="8" max="120"
+                class="w-12 bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-center font-mono text-xs focus:border-brand-500 focus:outline-none">
+            <span class="text-slate-400 text-[11px]">px</span>
+        </div>
+
+        <div class="flex items-center space-x-1.5 border-r border-slate-700 pr-3">
+            <button id="btn-toggle-bold"
+                class="p-1.5 bg-slate-700/60 hover:bg-slate-700 rounded text-slate-300 hover:text-white transition w-7 h-7 flex items-center justify-center font-bold"
+                title="ตัวหนา">
+                B
+            </button>
+            <button id="btn-toggle-italic"
+                class="p-1.5 bg-slate-700/60 hover:bg-slate-700 rounded text-slate-300 hover:text-white transition w-7 h-7 flex items-center justify-center italic font-serif"
+                title="ตัวเอียง">
+                I
+            </button>
+        </div>
+
+        <!-- Text Color Controls -->
+        <div class="flex items-center space-x-2 border-r border-slate-700 pr-3" title="สีข้อความ">
+            <span class="text-slate-400 text-[11px]">สีข้อความ:</span>
+            <div class="flex items-center space-x-1">
+                <button class="preset-color-btn bg-black" data-text-color="#000000" title="ดำ"></button>
+                <button class="preset-color-btn bg-blue-600" data-text-color="#2563eb" title="น้ำเงิน"></button>
+                <button class="preset-color-btn bg-red-600" data-text-color="#dc2626" title="แดง"></button>
+                <button class="preset-color-btn bg-emerald-600" data-text-color="#059669" title="เขียว"></button>
+                <input type="color" id="active-text-color" value="#000000"
+                    class="w-6 h-6 rounded border-0 bg-transparent cursor-pointer ml-1">
+            </div>
+        </div>
+
+        <!-- Background Color Controls -->
+        <div class="flex items-center space-x-2 border-r border-slate-700 pr-3" title="สีพื้นหลัง">
+            <span class="text-slate-400 text-[11px]">พื้นหลัง:</span>
+            <div class="flex items-center space-x-1">
+                <button id="btn-bg-transparent"
+                    class="px-2 py-0.5 text-[10px] bg-slate-700 hover:bg-slate-600 rounded border border-slate-500 font-mono text-slate-200"
+                    title="โปร่งแสง">
+                    ใส
+                </button>
+                <button class="preset-color-btn bg-white" data-bg-color="#ffffff" title="ขาว"></button>
+                <button class="preset-color-btn bg-yellow-200" data-bg-color="#fef08a" title="เหลืองไฮไลท์"></button>
+                <button class="preset-color-btn bg-sky-200" data-bg-color="#bae6fd" title="ฟ้าอ่อน"></button>
+                <input type="color" id="active-bg-color" value="#ffffff"
+                    class="w-6 h-6 rounded border-0 bg-transparent cursor-pointer ml-1">
+            </div>
+        </div>
+
+        <button id="btn-delete-active-text"
+            class="px-2.5 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 rounded-lg transition flex items-center space-x-1">
+            <i class="fa-solid fa-trash-can text-xs"></i>
+            <span>ลบ</span>
+        </button>
+    </div>
+
+    <!-- Main Workspace Area -->
+    <div id="app-container" class="flex-1 flex overflow-hidden relative">
+
+        <!-- Sidebar Tools -->
+        <aside id="toolbar-sidebar"
+            class="no-print w-64 bg-slate-800 border-r border-slate-700/80 flex flex-col shrink-0 p-4 space-y-5 overflow-y-auto hidden z-20">
+            <div>
+                <label
+                    class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 block mb-2">เลือกเครื่องมือขีดเขียน</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <button id="tool-select"
+                        class="tool-btn active p-2.5 bg-slate-700 hover:bg-slate-600 border border-brand-500 text-white rounded-xl flex flex-col items-center justify-center text-xs font-medium space-y-1.5 transition shadow-sm">
+                        <i class="fa-solid fa-arrow-pointer text-base text-brand-400"></i>
+                        <span>ย้าย / แก้ไข</span>
+                    </button>
+                    <button id="tool-text"
+                        class="tool-btn p-2.5 bg-slate-900/60 hover:bg-slate-700 border border-slate-700 text-slate-300 rounded-xl flex flex-col items-center justify-center text-xs font-medium space-y-1.5 transition">
+                        <i class="fa-solid fa-font text-base text-emerald-400"></i>
+                        <span>เพิ่ม Textbox</span>
+                    </button>
+                    <button id="tool-pen"
+                        class="tool-btn p-2.5 bg-slate-900/60 hover:bg-slate-700 border border-slate-700 text-slate-300 rounded-xl flex flex-col items-center justify-center text-xs font-medium space-y-1.5 transition">
+                        <i class="fa-solid fa-pen-nib text-base text-amber-400"></i>
+                        <span>ปากกา</span>
+                    </button>
+                    <button id="tool-eraser"
+                        class="tool-btn p-2.5 bg-slate-900/60 hover:bg-slate-700 border border-slate-700 text-slate-300 rounded-xl flex flex-col items-center justify-center text-xs font-medium space-y-1.5 transition">
+                        <i class="fa-solid fa-eraser text-base text-rose-400"></i>
+                        <span>ยางลบ</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Insert Image Tool Button -->
+            <div class="pt-2 border-t border-slate-700/60">
+                <input type="file" id="image-file-input" accept="image/png, image/jpeg, image/webp" class="hidden">
+                <button id="btn-insert-image"
+                    class="w-full py-2.5 px-3 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-semibold transition flex items-center justify-center space-x-2 shadow-md shadow-brand-600/20">
+                    <i class="fa-solid fa-image"></i>
+                    <span>แทรกรูปภาพ</span>
+                </button>
+            </div>
+
+            <!-- Pen & Drawing Options -->
+            <div id="pen-options" class="space-y-3 pt-3 border-t border-slate-700/60">
+                <label
+                    class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 block">คุณสมบัติเส้นปากกา</label>
+                <div>
+                    <div class="flex justify-between text-xs text-slate-300 mb-1">
+                        <span>ขนาดเส้น:</span>
+                        <span id="stroke-val" class="font-mono text-brand-400 font-semibold">3px</span>
+                    </div>
+                    <input type="range" id="stroke-width" min="1" max="25" value="3"
+                        class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-500">
+                </div>
+                <div>
+                    <span class="text-xs text-slate-300 block mb-1.5">Line Color:</span>
+                    <div class="flex items-center space-x-2 bg-slate-900/60 p-2 rounded-lg border border-slate-700">
+                        <input type="color" id="pen-color" value="#ef4444"
+                            class="w-7 h-7 rounded border-0 cursor-pointer bg-transparent">
+                        <span id="pen-color-hex" class="text-xs font-mono text-slate-300 uppercase">#ef4444</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page Level Actions -->
+            <div class="pt-3 border-t border-slate-700/60 space-y-2 mt-auto">
+                <label
+                    class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 block mb-1">การจัดการหน้านี้</label>
+                <button id="btn-clear-canvas"
+                    class="w-full py-2 px-3 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-xl text-xs font-medium transition flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-trash-can"></i>
+                    <span>ล้างรายการในหน้านี้</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Document Viewport -->
+        <main id="viewer-scroll-area"
+            class="flex-1 bg-slate-950 overflow-auto p-8 flex justify-center items-start relative">
+            <div id="upload-container"
+                class="my-auto max-w-md w-full bg-slate-800 border-2 border-dashed border-slate-600 hover:border-brand-500 rounded-2xl p-8 text-center transition cursor-pointer shadow-2xl flex flex-col items-center justify-center group">
+                <div
+                    class="w-16 h-16 bg-slate-700/80 group-hover:bg-brand-600/20 text-brand-500 rounded-2xl flex items-center justify-center text-3xl mb-4 transition-all duration-300 shadow-inner">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                </div>
+                <h3 class="text-slate-200 text-lg font-semibold mb-1">อัปโหลดไฟล์ PDF ของคุณ</h3>
+                <p class="text-slate-400 text-xs mb-5">ลากไฟล์มาวางที่นี่ หรือคลิกเพื่อเลือกไฟล์ PDF
+                    จากเครื่องคอมพิวเตอร์</p>
+                <button
+                    class="px-5 py-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-sm font-medium transition shadow-lg shadow-brand-500/20 flex items-center space-x-2">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>เลือกไฟล์ PDF</span>
+                </button>
+            </div>
+
+            <div id="pages-wrapper" class="hidden flex flex-col items-center gap-8 my-auto"></div>
+
+            <div id="loading-overlay"
+                class="hidden absolute inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center space-y-3">
+                <div class="w-10 h-10 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+                <p id="loading-text" class="text-slate-200 text-sm font-medium">กำลังประมวลผลเอกสาร...</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast"
+        class="toast fixed bottom-5 right-5 bg-slate-800 text-white px-4 py-3 rounded-xl border border-slate-700 shadow-2xl flex items-center space-x-3 translate-y-20 opacity-0 transition-all duration-300 z-50 pointer-events-none">
+        <i id="toast-icon" class="fa-solid fa-circle-info text-brand-500 text-lg"></i>
+        <span id="toast-message" class="text-sm font-medium">ข้อความแจ้งเตือน</span>
+    </div>
+
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        const getDevicePixelRatio = () => Math.max(window.devicePixelRatio || 1, 2);
+
+        const state = {
+            pdfDoc: null,
+            pdfBytes: null,
+            fileName: 'edited_document.pdf',
+            pageNum: 1,
+            totalPages: 0,
+            scale: 1.2,
+            activeTool: 'select',
+            penColor: '#ef4444',
+            strokeWidth: 3,
+            activeTextObj: null,
+            pagesData: [],
+            history: [],
+            historyIndex: -1,
+            isPerformingHistoryAction: false
+        };
+
+        const fileInput = document.getElementById('file-input');
+        const btnUpload = document.getElementById('btn-upload');
+        const btnPrint = document.getElementById('btn-print');
+        const btnDownload = document.getElementById('btn-download');
+        const btnUndo = document.getElementById('btn-undo');
+        const btnRedo = document.getElementById('btn-redo');
+        const imageFileInput = document.getElementById('image-file-input');
+        const btnInsertImage = document.getElementById('btn-insert-image');
+
+        const uploadContainer = document.getElementById('upload-container');
+        const pagesWrapper = document.getElementById('pages-wrapper');
+        const toolbarSidebar = document.getElementById('toolbar-sidebar');
+        const pdfControls = document.getElementById('pdf-controls');
+        const pageNumInput = document.getElementById('page-num-input');
+        const pageCountSpan = document.getElementById('page-count');
+        const zoomPercent = document.getElementById('zoom-percent');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const loadingText = document.getElementById('loading-text');
+
+        const textFormattingBar = document.getElementById('text-formatting-bar');
+        const activeFontSizeInput = document.getElementById('active-font-size');
+        const activeTextColorInput = document.getElementById('active-text-color');
+        const activeBgColorInput = document.getElementById('active-bg-color');
+        const btnBgTransparent = document.getElementById('btn-bg-transparent');
+        const btnToggleBold = document.getElementById('btn-toggle-bold');
+        const btnToggleItalic = document.getElementById('btn-toggle-italic');
+        const btnDeleteActiveText = document.getElementById('btn-delete-active-text');
+
+        function saveStateToHistory() {
+            if (state.isPerformingHistoryAction) return;
+            state.history = state.history.slice(0, state.historyIndex + 1);
+            const snapshot = JSON.parse(JSON.stringify(state.pagesData));
+            state.history.push(snapshot);
+            if (state.history.length > 30) {
+                state.history.shift();
+            } else {
+                state.historyIndex++;
+            }
+            updateUndoRedoButtons();
+        }
+
+        function updateUndoRedoButtons() {
+            if (state.historyIndex > 0) {
+                btnUndo.disabled = false;
+                btnUndo.classList.remove('opacity-50', 'cursor-not-allowed', 'text-slate-500');
+                btnUndo.classList.add('text-slate-300');
+            } else {
+                btnUndo.disabled = true;
+                btnUndo.classList.add('opacity-50', 'cursor-not-allowed', 'text-slate-500');
+                btnUndo.classList.remove('text-slate-300');
+            }
+
+            if (state.historyIndex < state.history.length - 1) {
+                btnRedo.disabled = false;
+                btnRedo.classList.remove('opacity-50', 'cursor-not-allowed', 'text-slate-500');
+                btnRedo.classList.add('text-slate-300');
+            } else {
+                btnRedo.disabled = true;
+                btnRedo.classList.add('opacity-50', 'cursor-not-allowed', 'text-slate-500');
+                btnRedo.classList.remove('text-slate-300');
+            }
+        }
+
+        function updatePageVisualsSeamlessly() {
+            state.isPerformingHistoryAction = true;
+            deselectActiveText();
+            deselectActiveImage();
+            const containers = document.querySelectorAll('.page-container');
+            containers.forEach((container, pageIdx) => {
+                const drawCanvas = container.querySelector('canvas:nth-child(2)');
+                const textLayer = container.querySelector('div:last-child');
+                if (drawCanvas) {
+                    redrawPageDrawings(pageIdx, drawCanvas, getDevicePixelRatio());
+                }
+                if (textLayer) {
+                    rebuildTextAndImageElements(pageIdx, textLayer);
+                }
+            });
+            state.isPerformingHistoryAction = false;
+            updateUndoRedoButtons();
+        }
+
+        async function performUndo() {
+            if (state.historyIndex > 0) {
+                state.historyIndex--;
+                state.pagesData = JSON.parse(JSON.stringify(state.history[state.historyIndex]));
+                updatePageVisualsSeamlessly();
+                showToast('ย้อนการกระทำ (Undo)', 'info');
+            }
+        }
+
+        async function performRedo() {
+            if (state.historyIndex < state.history.length - 1) {
+                state.historyIndex++;
+                state.pagesData = JSON.parse(JSON.stringify(state.history[state.historyIndex]));
+                updatePageVisualsSeamlessly();
+                showToast('ทำซ้ำการกระทำ (Redo)', 'info');
+            }
+        }
+
+        btnUndo.addEventListener('click', performUndo);
+        btnRedo.addEventListener('click', performRedo);
+
+        window.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && !e.target.isContentEditable) {
+                if (e.key.toLowerCase() === 'z') {
+                    if (e.shiftKey) {
+                        e.preventDefault();
+                        performRedo();
+                    } else {
+                        e.preventDefault();
+                        performUndo();
+                    }
+                } else if (e.key.toLowerCase() === 'y') {
+                    e.preventDefault();
+                    performRedo();
+                }
+            }
+        });
+
+        uploadContainer.addEventListener('click', () => fileInput.click());
+        btnUpload.addEventListener('click', () => fileInput.click());
+
+        ['dragenter', 'dragover'].forEach(evt => {
+            uploadContainer.addEventListener(evt, (e) => {
+                e.preventDefault();
+                uploadContainer.classList.add('border-brand-500', 'bg-slate-700/50');
+            });
+        });
+        ['dragleave', 'drop'].forEach(evt => {
+            uploadContainer.addEventListener(evt, (e) => {
+                e.preventDefault();
+                uploadContainer.classList.remove('border-brand-500', 'bg-slate-700/50');
+            });
+        });
+        uploadContainer.addEventListener('drop', (e) => {
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].type === 'application/pdf') {
+                handleFileUpload(files[0]);
+            } else {
+                showToast('กรุณาอัปโหลดไฟล์ประเภท .pdf เท่านั้น', 'error');
+            }
+        });
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileUpload(e.target.files[0]);
+            }
+        });
+
+        async function handleFileUpload(file) {
+            state.fileName = file.name;
+            showLoading('กำลังโหลดไฟล์ PDF...');
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                state.pdfBytes = arrayBuffer.slice(0);
+
+                const loadingTask = pdfjsLib.getDocument({data: new Uint8Array(arrayBuffer.slice(0))});
+                state.pdfDoc = await loadingTask.promise;
+                state.totalPages = state.pdfDoc.numPages;
+
+                pageCountSpan.textContent = state.totalPages;
+                pageNumInput.value = 1;
+                state.pageNum = 1;
+
+                state.pagesData = Array.from({length: state.totalPages}, () => ({
+                    drawings: [],
+                    texts: [],
+                    images: []
+                }));
+
+                state.history = [JSON.parse(JSON.stringify(state.pagesData))];
+                state.historyIndex = 0;
+                updateUndoRedoButtons();
+
+                uploadContainer.classList.add('hidden');
+                pagesWrapper.classList.remove('hidden');
+                toolbarSidebar.classList.remove('hidden');
+                pdfControls.classList.remove('hidden');
+
+                btnPrint.disabled = false;
+                btnPrint.classList.remove('opacity-60', 'cursor-not-allowed', 'bg-slate-800', 'text-slate-500');
+                btnPrint.classList.add('bg-slate-700', 'hover:bg-slate-600', 'text-slate-100');
+
+                btnDownload.disabled = false;
+                btnDownload.classList.remove('opacity-60', 'cursor-not-allowed');
+
+                await renderAllPages();
+                showToast('โหลด PDF สำเร็จแล้ว!', 'success');
+            } catch (err) {
+                console.error(err);
+                showToast('ไม่สามารถเปิดไฟล์ PDF นี้ได้', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function renderAllPages() {
+            pagesWrapper.innerHTML = '';
+            for (let i = 1; i <= state.totalPages; i++) {
+                await renderPage(i);
+            }
+            scrollToPage(state.pageNum);
+        }
+
+        async function renderPage(pageNo) {
+            const page = await state.pdfDoc.getPage(pageNo);
+            const viewport = page.getViewport({scale: state.scale});
+            const outputScale = getDevicePixelRatio();
+
+            const pageContainer = document.createElement('div');
+            pageContainer.className = 'page-container relative bg-white shadow-2xl rounded-sm overflow-hidden border border-slate-700';
+            pageContainer.dataset.pageIndex = pageNo - 1;
+            pageContainer.style.width = `${viewport.width}px`;
+            pageContainer.style.height = `${viewport.height}px`;
+
+            const pdfCanvas = document.createElement('canvas');
+            pdfCanvas.className = 'absolute inset-0 z-0 pointer-events-none';
+            pdfCanvas.width = Math.floor(viewport.width * outputScale);
+            pdfCanvas.height = Math.floor(viewport.height * outputScale);
+            pdfCanvas.style.width = `${viewport.width}px`;
+            pdfCanvas.style.height = `${viewport.height}px`;
+
+            const pdfCtx = pdfCanvas.getContext('2d');
+            const transform = outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null;
+
+            await page.render({
+                canvasContext: pdfCtx,
+                viewport: viewport,
+                transform: transform
+            }).promise;
+
+            const drawCanvas = document.createElement('canvas');
+            drawCanvas.className = 'absolute inset-0 z-10';
+            drawCanvas.width = Math.floor(viewport.width * outputScale);
+            drawCanvas.height = Math.floor(viewport.height * outputScale);
+            drawCanvas.style.width = `${viewport.width}px`;
+            drawCanvas.style.height = `${viewport.height}px`;
+
+            const textLayer = document.createElement('div');
+            textLayer.className = 'absolute inset-0 z-20 pointer-events-none';
+
+            pageContainer.appendChild(pdfCanvas);
+            pageContainer.appendChild(drawCanvas);
+            pageContainer.appendChild(textLayer);
+            pagesWrapper.appendChild(pageContainer);
+
+            initPageInteractions(pageNo - 1, pageContainer, drawCanvas, textLayer, outputScale);
+            redrawPageDrawings(pageNo - 1, drawCanvas, outputScale);
+            rebuildTextAndImageElements(pageNo - 1, textLayer);
+        }
+
+        function initPageInteractions(pageIdx, container, drawCanvas, textLayer, outputScale) {
+            const ctx = drawCanvas.getContext('2d');
+            let isDrawing = false;
+            let currentPath = [];
+
+            function getPos(e) {
+                const rect = drawCanvas.getBoundingClientRect();
+                return {
+                    x: e.clientX - rect.left,
+                    y: e.clientY - rect.top
+                };
+            }
+
+            const handlePointerDown = (e) => {
+                if (e.target.closest('.annotation-textbox') || e.target.closest('.annotation-imagebox') || e.target.closest('.inline-context-menu')) {
+                    return;
+                }
+
+                if (state.activeTool === 'pen') {
+                    isDrawing = true;
+                    const pos = getPos(e);
+                    currentPath = [{x: pos.x / state.scale, y: pos.y / state.scale}];
+
+                    ctx.beginPath();
+                    ctx.moveTo(pos.x * outputScale, pos.y * outputScale);
+                    ctx.strokeStyle = state.penColor;
+                    ctx.lineWidth = state.strokeWidth * state.scale * outputScale;
+                    ctx.lineCap = 'round';
+                    ctx.lineJoin = 'round';
+                } else if (state.activeTool === 'text') {
+                    const pos = getPos(e);
+                    createTextBox(pageIdx, textLayer, pos.x / state.scale, pos.y / state.scale);
+                    setToolMode('select');
+                    saveStateToHistory();
+                } else if (state.activeTool === 'eraser') {
+                    const pos = getPos(e);
+                    eraseDrawingAtPos(pageIdx, pos.x / state.scale, pos.y / state.scale, drawCanvas, outputScale);
+                }
+            };
+
+            drawCanvas.addEventListener('mousedown', handlePointerDown);
+
+            drawCanvas.addEventListener('mousemove', (e) => {
+                if (!isDrawing) return;
+                const pos = getPos(e);
+                currentPath.push({x: pos.x / state.scale, y: pos.y / state.scale});
+                ctx.lineTo(pos.x * outputScale, pos.y * outputScale);
+                ctx.stroke();
+            });
+
+            const stopDrawing = () => {
+                if (isDrawing) {
+                    isDrawing = false;
+                    if (currentPath.length > 0) {
+                        state.pagesData[pageIdx].drawings.push({
+                            color: state.penColor,
+                            width: state.strokeWidth,
+                            points: currentPath
+                        });
+                        saveStateToHistory();
+                    }
+                }
+            };
+
+            drawCanvas.addEventListener('mouseup', stopDrawing);
+            drawCanvas.addEventListener('mouseleave', stopDrawing);
+        }
+
+        function redrawPageDrawings(pageIdx, canvas, outputScale) {
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const drawings = state.pagesData[pageIdx].drawings;
+            drawings.forEach(pathObj => {
+                if (pathObj.points.length < 2) return;
+                ctx.beginPath();
+                ctx.strokeStyle = pathObj.color;
+                ctx.lineWidth = pathObj.width * state.scale * outputScale;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+
+                ctx.moveTo(pathObj.points[0].x * state.scale * outputScale, pathObj.points[0].y * state.scale * outputScale);
+                for (let i = 1; i < pathObj.points.length; i++) {
+                    ctx.lineTo(pathObj.points[i].x * state.scale * outputScale, pathObj.points[i].y * state.scale * outputScale);
+                }
+                ctx.stroke();
+            });
+        }
+
+        function eraseDrawingAtPos(pageIdx, unscaledX, unscaledY, canvas, outputScale) {
+            const drawings = state.pagesData[pageIdx].drawings;
+            const threshold = 15 / state.scale;
+
+            const filtered = drawings.filter(pathObj => {
+                return !pathObj.points.some(pt => {
+                    const dx = pt.x - unscaledX;
+                    const dy = pt.y - unscaledY;
+                    return Math.sqrt(dx * dx + dy * dy) < threshold;
+                });
+            });
+
+            if (filtered.length !== drawings.length) {
+                state.pagesData[pageIdx].drawings = filtered;
+                redrawPageDrawings(pageIdx, canvas, outputScale);
+                saveStateToHistory();
+                showToast('ลบเส้นเรียบร้อย', 'info');
+            }
+        }
+
+        btnInsertImage.addEventListener('click', () => {
+            if (!state.pdfDoc) return;
+            imageFileInput.click();
+        });
+
+        imageFileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const imgDataUrl = event.target.result;
+                const img = new Image();
+                img.onload = function() {
+                    const pageIdx = state.pageNum - 1;
+                    const containers = document.querySelectorAll('.page-container');
+                    if (!containers[pageIdx]) return;
+                    const textLayer = containers[pageIdx].querySelector('div:last-child');
+
+                    let w = img.width;
+                    let h = img.height;
+                    const maxW = 200;
+                    if (w > maxW) {
+                        h = (maxW / w) * h;
+                        w = maxW;
+                    }
+
+                    const imageObj = {
+                        id: 'img_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                        pageIndex: pageIdx,
+                        x: 50,
+                        y: 50,
+                        width: w,
+                        height: h,
+                        src: imgDataUrl
+                    };
+
+                    if (!state.pagesData[pageIdx].images) {
+                        state.pagesData[pageIdx].images = [];
+                    }
+                    state.pagesData[pageIdx].images.push(imageObj);
+
+                    createImageBox(pageIdx, textLayer, imageObj);
+                    saveStateToHistory();
+                    showToast('แทรกรูปภาพสำเร็จ', 'success');
+                    imageFileInput.value = '';
+                };
+                img.src = imgDataUrl;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        function createImageBox(pageIdx, textLayer, imageObj) {
+            const box = document.createElement('div');
+            box.className = 'annotation-imagebox pointer-events-auto';
+            box.dataset.id = imageObj.id;
+            box.style.left = `${imageObj.x * state.scale}px`;
+            box.style.top = `${imageObj.y * state.scale}px`;
+            box.style.width = `${imageObj.width * state.scale}px`;
+            box.style.height = `${imageObj.height * state.scale}px`;
+
+            const imgEl = document.createElement('img');
+            imgEl.src = imageObj.src;
+
+            const deleteBtn = document.createElement('div');
+            deleteBtn.className = 'img-delete-btn';
+            deleteBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+            deleteBtn.title = 'ลบรูปภาพนี้';
+            deleteBtn.onclick = (e) => {
+                e.stopPropagation();
+                box.remove();
+                state.pagesData[pageIdx].images = state.pagesData[pageIdx].images.filter(img => img.id !== imageObj.id);
+                saveStateToHistory();
+                showToast('ลบรูปภาพแล้ว', 'info');
+            };
+
+            const resizeHandle = document.createElement('div');
+            resizeHandle.className = 'img-resize-handle';
+            resizeHandle.innerHTML = '<i class="fa-solid fa-arrows-up-down-left-right text-[8px]"></i>';
+            resizeHandle.title = 'ลากเพื่อปรับขนาด (รักษาสัดส่วน)';
+
+            box.appendChild(imgEl);
+            box.appendChild(deleteBtn);
+            box.appendChild(resizeHandle);
+            textLayer.appendChild(box);
+
+            box.addEventListener('mousedown', (e) => {
+                if (e.target === resizeHandle || e.target.closest('.img-resize-handle')) return;
+                e.stopPropagation();
+                deselectActiveText();
+                selectActiveImage(imageObj, box);
+            });
+
+            makeImageDraggable(box, imageObj);
+            makeImageResizable(box, resizeHandle, imageObj);
+        }
+
+        function selectActiveImage(imageObj, boxEl) {
+            document.querySelectorAll('.annotation-textbox, .annotation-imagebox').forEach(el => {
+                el.classList.remove('active-selected');
+                const menu = el.querySelector('.inline-context-menu');
+                if (menu) menu.remove();
+            });
+            boxEl.classList.add('active-selected');
+            deselectActiveText();
+        }
+
+        function deselectActiveImage() {
+            document.querySelectorAll('.annotation-imagebox').forEach(el => {
+                el.classList.remove('active-selected');
+            });
+        }
+
+        function makeImageDraggable(element, imageObj) {
+            let startX = 0, startY = 0;
+
+            const onMouseDown = (e) => {
+                if (e.target.classList.contains('img-resize-handle') || e.target.closest('.img-resize-handle')) return;
+                e.stopPropagation();
+                startX = e.clientX;
+                startY = e.clientY;
+
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            };
+
+            const onMouseMove = (e) => {
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                startX = e.clientX;
+                startY = e.clientY;
+
+                const newLeft = element.offsetLeft + dx;
+                const newTop = element.offsetTop + dy;
+
+                element.style.left = `${newLeft}px`;
+                element.style.top = `${newTop}px`;
+
+                imageObj.x = newLeft / state.scale;
+                imageObj.y = newTop / state.scale;
+            };
+
+            const onMouseUp = () => {
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+                saveStateToHistory();
+            };
+
+            element.addEventListener('mousedown', onMouseDown);
+        }
+
+        function makeImageResizable(element, handle, imageObj) {
+            let startX = 0, startY = 0, startW = 0, startH = 0, aspectRatio = 1;
+
+            const onMouseDown = (e) => {
+                e.stopPropagation();
+                startX = e.clientX;
+                startY = e.clientY;
+                startW = element.offsetWidth;
+                startH = element.offsetHeight;
+                aspectRatio = startW / startH;
+
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            };
+
+            const onMouseMove = (e) => {
+                const dx = e.clientX - startX;
+                let newW = Math.max(30, startW + dx);
+                let newH = newW / aspectRatio;
+
+                element.style.width = `${newW}px`;
+                element.style.height = `${newH}px`;
+
+                imageObj.width = newW / state.scale;
+                imageObj.height = newH / state.scale;
+            };
+
+            const onMouseUp = () => {
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+                saveStateToHistory();
+            };
+
+            handle.addEventListener('mousedown', onMouseDown);
+        }
+
+        function rebuildTextAndImageElements(pageIdx, textLayer) {
+            textLayer.innerHTML = '';
+            if (state.pagesData[pageIdx].texts) {
+                state.pagesData[pageIdx].texts.forEach(textObj => {
+                    createTextBox(pageIdx, textLayer, textObj.x, textObj.y, textObj);
+                });
+            }
+            if (state.pagesData[pageIdx].images) {
+                state.pagesData[pageIdx].images.forEach(imageObj => {
+                    createImageBox(pageIdx, textLayer, imageObj);
+                });
+            }
+        }
+
+        function createTextBox(pageIdx, textLayer, unscaledX, unscaledY, existingData = null) {
+            const isNew = !existingData;
+            const textObj = existingData || {
+                id: 'text_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                pageIndex: pageIdx,
+                x: unscaledX,
+                y: unscaledY,
+                text: 'พิมพ์ข้อความ...',
+                fontSize: 18,
+                color: '#000000',
+                bgColor: 'transparent',
+                isBold: false,
+                isItalic: false
+            };
+
+            if (isNew) {
+                if (!state.pagesData[pageIdx].texts) state.pagesData[pageIdx].texts = [];
+                state.pagesData[pageIdx].texts.push(textObj);
+            }
+
+            const box = document.createElement('div');
+            box.className = 'annotation-textbox pointer-events-auto';
+            box.dataset.id = textObj.id;
+            box.style.left = `${textObj.x * state.scale}px`;
+            box.style.top = `${textObj.y * state.scale}px`;
+            box.style.backgroundColor = textObj.bgColor;
+
+            const dragHandle = document.createElement('div');
+            dragHandle.className = 'drag-handle';
+            dragHandle.innerHTML = '<i class="fa-solid fa-up-down-left-right"></i>';
+            dragHandle.title = 'ลากเพื่อย้ายตำแหน่ง';
+
+            const content = document.createElement('div');
+            content.className = 'editable-content';
+            content.contentEditable = true;
+            content.innerText = textObj.text;
+            content.style.fontSize = `${textObj.fontSize * state.scale}px`;
+            content.style.color = textObj.color;
+            content.style.fontWeight = textObj.isBold ? 'bold' : 'normal';
+            content.style.fontStyle = textObj.isItalic ? 'italic' : 'normal';
+
+            const deleteBtn = document.createElement('div');
+            deleteBtn.className = 'delete-btn';
+            deleteBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+            deleteBtn.title = 'ลบกล่องข้อความนี้';
+
+            deleteBtn.onclick = (e) => {
+                e.stopPropagation();
+                box.remove();
+                state.pagesData[pageIdx].texts = state.pagesData[pageIdx].texts.filter(t => t.id !== textObj.id);
+                if (state.activeTextObj === textObj) {
+                    deselectActiveText();
+                }
+                saveStateToHistory();
+                showToast('ลบข้อความเรียบร้อยแล้ว', 'info');
+            };
+
+            box.appendChild(dragHandle);
+            box.appendChild(content);
+            box.appendChild(deleteBtn);
+            textLayer.appendChild(box);
+
+            content.addEventListener('input', () => {
+                textObj.text = content.innerText;
+                saveStateToHistory();
+            });
+
+            content.addEventListener('mousedown', (e) => {
+                e.stopPropagation();
+                setToolMode('select');
+                selectActiveText(textObj, box, content);
+            });
+
+            content.addEventListener('focus', (e) => {
+                e.stopPropagation();
+                selectActiveText(textObj, box, content);
+            });
+
+            box.addEventListener('mousedown', (e) => {
+                e.stopPropagation();
+                setToolMode('select');
+                selectActiveText(textObj, box, content);
+            });
+
+            makeDraggable(box, dragHandle, textObj);
+
+            if (isNew) {
+                selectActiveText(textObj, box, content);
+                setTimeout(() => {
+                    content.focus();
+                    document.execCommand('selectAll', false, null);
+                }, 50);
+            }
+        }
+
+        function createInlineQuickMenu(textObj, boxEl) {
+            const existingMenu = boxEl.querySelector('.inline-context-menu');
+            if (existingMenu) existingMenu.remove();
+
+            const menu = document.createElement('div');
+            menu.className = 'inline-context-menu';
+            menu.onclick = (e) => e.stopPropagation();
+            menu.onmousedown = (e) => e.stopPropagation();
+
+            const sizeInput = document.createElement('input');
+            sizeInput.type = 'number';
+            sizeInput.value = textObj.fontSize;
+            sizeInput.min = '8';
+            sizeInput.max = '120';
+            sizeInput.className = 'w-10 bg-slate-900 border border-slate-600 text-slate-100 rounded px-1 py-0.5 text-center font-mono text-xs focus:outline-none';
+            sizeInput.title = 'ขนาดฟอนต์';
+            sizeInput.oninput = (e) => {
+                const val = parseInt(e.target.value) || 12;
+                textObj.fontSize = val;
+                activeFontSizeInput.value = val;
+                updateActiveTextElementDOM();
+                saveStateToHistory();
+            };
+
+            const colorInput = document.createElement('input');
+            colorInput.type = 'color';
+            colorInput.value = textObj.color.startsWith('#') ? textObj.color : '#000000';
+            colorInput.className = 'w-5 h-5 rounded border-0 bg-transparent cursor-pointer p-0';
+            colorInput.title = 'เปลี่ยนสีข้อความ';
+            colorInput.oninput = (e) => {
+                textObj.color = e.target.value;
+                activeTextColorInput.value = e.target.value;
+                updateActiveTextElementDOM();
+                saveStateToHistory();
+            };
+
+            const boldBtn = document.createElement('button');
+            boldBtn.className = `w-6 h-6 rounded flex items-center justify-center font-bold text-xs ${textObj.isBold ? 'bg-brand-600 text-white' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'}`;
+            boldBtn.innerText = 'B';
+            boldBtn.onclick = () => {
+                textObj.isBold = !textObj.isBold;
+                boldBtn.className = `w-6 h-6 rounded flex items-center justify-center font-bold text-xs ${textObj.isBold ? 'bg-brand-600 text-white' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'}`;
+                btnToggleBold.classList.toggle('bg-brand-600', textObj.isBold);
+                btnToggleBold.classList.toggle('text-white', textObj.isBold);
+                updateActiveTextElementDOM();
+                saveStateToHistory();
+            };
+
+            const delBtn = document.createElement('button');
+            delBtn.className = 'w-6 h-6 rounded bg-rose-500/20 hover:bg-rose-500/40 text-rose-300 flex items-center justify-center text-xs';
+            delBtn.innerHTML = '<i class="fa-solid fa-trash-can"></i>';
+            delBtn.title = 'ลบข้อความนี้';
+            delBtn.onclick = () => {
+                const id = textObj.id;
+                const pageIdx = textObj.pageIndex;
+                boxEl.remove();
+                state.pagesData[pageIdx].texts = state.pagesData[pageIdx].texts.filter(t => t.id !== id);
+                deselectActiveText();
+                saveStateToHistory();
+                showToast('ลบข้อความแล้ว', 'info');
+            };
+
+            menu.appendChild(sizeInput);
+            menu.appendChild(colorInput);
+            menu.appendChild(boldBtn);
+            menu.appendChild(delBtn);
+
+            boxEl.appendChild(menu);
+        }
+
+        function makeDraggable(element, handle, textObj) {
+            let startX = 0, startY = 0;
+
+            const onMouseDown = (e) => {
+                if (e.target.isContentEditable && document.activeElement === e.target) return;
+
+                e.stopPropagation();
+                startX = e.clientX;
+                startY = e.clientY;
+
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            };
+
+            const onMouseMove = (e) => {
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                startX = e.clientX;
+                startY = e.clientY;
+
+                const newLeft = element.offsetLeft + dx;
+                const newTop = element.offsetTop + dy;
+
+                element.style.left = `${newLeft}px`;
+                element.style.top = `${newTop}px`;
+
+                textObj.x = newLeft / state.scale;
+                textObj.y = newTop / state.scale;
+            };
+
+            const onMouseUp = () => {
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+                saveStateToHistory();
+            };
+
+            element.addEventListener('mousedown', onMouseDown);
+            handle.addEventListener('mousedown', onMouseDown);
+        }
+
+        function selectActiveText(textObj, boxEl, contentEl) {
+            document.querySelectorAll('.annotation-textbox, .annotation-imagebox').forEach(el => {
+                el.classList.remove('active-selected');
+                const menu = el.querySelector('.inline-context-menu');
+                if (menu) menu.remove();
+            });
+
+            boxEl.classList.add('active-selected');
+            state.activeTextObj = textObj;
+
+            activeFontSizeInput.value = textObj.fontSize;
+            activeTextColorInput.value = textObj.color.startsWith('#') ? textObj.color : '#000000';
+            activeBgColorInput.value = (textObj.bgColor && textObj.bgColor.startsWith('#')) ? textObj.bgColor : '#ffffff';
+
+            btnToggleBold.classList.toggle('bg-brand-600', textObj.isBold);
+            btnToggleBold.classList.toggle('text-white', textObj.isBold);
+            btnToggleItalic.classList.toggle('bg-brand-600', textObj.isItalic);
+            btnToggleItalic.classList.toggle('text-white', textObj.isItalic);
+
+            textFormattingBar.classList.remove('hidden');
+
+            createInlineQuickMenu(textObj, boxEl);
+        }
+
+        function deselectActiveText() {
+            if (document.activeElement && document.activeElement.isContentEditable) {
+                document.activeElement.blur();
+            }
+
+            document.querySelectorAll('.annotation-textbox').forEach(el => {
+                el.classList.remove('active-selected');
+                const menu = el.querySelector('.inline-context-menu');
+                if (menu) menu.remove();
+
+                const content = el.querySelector('.editable-content');
+                if (content && !content.innerText.trim()) {
+                    const id = el.dataset.id;
+                    el.remove();
+                    state.pagesData.forEach(p => {
+                        if (p.texts) p.texts = p.texts.filter(t => t.id !== id);
+                    });
+                }
+            });
+
+            state.activeTextObj = null;
+            textFormattingBar.classList.add('hidden');
+        }
+
+        window.addEventListener('mousedown', (e) => {
+            if (!e.target.closest('.annotation-textbox') &&
+                !e.target.closest('.annotation-imagebox') &&
+                !e.target.closest('#text-formatting-bar') &&
+                !e.target.closest('.inline-context-menu')) {
+                deselectActiveText();
+                deselectActiveImage();
+            }
+        });
+
+        activeFontSizeInput.addEventListener('input', (e) => {
+            if (!state.activeTextObj) return;
+            const size = parseInt(e.target.value) || 12;
+            state.activeTextObj.fontSize = size;
+            updateActiveTextElementDOM();
+            saveStateToHistory();
+        });
+
+        activeTextColorInput.addEventListener('input', (e) => {
+            if (!state.activeTextObj) return;
+            state.activeTextObj.color = e.target.value;
+            updateActiveTextElementDOM();
+            saveStateToHistory();
+        });
+
+        document.querySelectorAll('[data-text-color]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                if (!state.activeTextObj) return;
+                const col = e.target.dataset.textColor;
+                state.activeTextObj.color = col;
+                activeTextColorInput.value = col;
+                updateActiveTextElementDOM();
+                saveStateToHistory();
+            });
+        });
+
+        activeBgColorInput.addEventListener('input', (e) => {
+            if (!state.activeTextObj) return;
+            state.activeTextObj.bgColor = e.target.value;
+            updateActiveTextElementDOM();
+            saveStateToHistory();
+        });
+
+        document.querySelectorAll('[data-bg-color]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                if (!state.activeTextObj) return;
+                const col = e.target.dataset.bgColor;
+                state.activeTextObj.bgColor = col;
+                activeBgColorInput.value = col;
+                updateActiveTextElementDOM();
+                saveStateToHistory();
+            });
+        });
+
+        btnBgTransparent.addEventListener('click', () => {
+            if (!state.activeTextObj) return;
+            state.activeTextObj.bgColor = 'transparent';
+            updateActiveTextElementDOM();
+            saveStateToHistory();
+        });
+
+        btnToggleBold.addEventListener('click', () => {
+            if (!state.activeTextObj) return;
+            state.activeTextObj.isBold = !state.activeTextObj.isBold;
+            btnToggleBold.classList.toggle('bg-brand-600', state.activeTextObj.isBold);
+            btnToggleBold.classList.toggle('text-white', state.activeTextObj.isBold);
+            updateActiveTextElementDOM();
+            saveStateToHistory();
+        });
+
+        btnToggleItalic.addEventListener('click', () => {
+            if (!state.activeTextObj) return;
+            state.activeTextObj.isItalic = !state.activeTextObj.isItalic;
+            btnToggleItalic.classList.toggle('bg-brand-600', state.activeTextObj.isItalic);
+            btnToggleItalic.classList.toggle('text-white', state.activeTextObj.isItalic);
+            updateActiveTextElementDOM();
+            saveStateToHistory();
+        });
+
+        btnDeleteActiveText.addEventListener('click', () => {
+            if (!state.activeTextObj) return;
+            const id = state.activeTextObj.id;
+            const pageIdx = state.activeTextObj.pageIndex;
+            const el = document.querySelector(`.annotation-textbox[data-id="${id}"]`);
+            if (el) el.remove();
+
+            state.pagesData[pageIdx].texts = state.pagesData[pageIdx].texts.filter(t => t.id !== id);
+            deselectActiveText();
+            saveStateToHistory();
+            showToast('ลบข้อความแล้ว', 'info');
+        });
+
+        function updateActiveTextElementDOM() {
+            if (!state.activeTextObj) return;
+            const obj = state.activeTextObj;
+            const box = document.querySelector(`.annotation-textbox[data-id="${obj.id}"]`);
+            if (!box) return;
+
+            box.style.backgroundColor = obj.bgColor || 'transparent';
+            const content = box.querySelector('.editable-content');
+            if (content) {
+                content.style.fontSize = `${obj.fontSize * state.scale}px`;
+                content.style.color = obj.color;
+                content.style.fontWeight = obj.isBold ? 'bold' : 'normal';
+                content.style.fontStyle = obj.isItalic ? 'italic' : 'normal';
+            }
+
+            const inlineSizeInput = box.querySelector('.inline-context-menu input[type="number"]');
+            if (inlineSizeInput) inlineSizeInput.value = obj.fontSize;
+
+            const inlineColorInput = box.querySelector('.inline-context-menu input[type="color"]');
+            if (inlineColorInput) inlineColorInput.value = obj.color.startsWith('#') ? obj.color : '#000000';
+        }
+
+        const toolBtns = {
+            select: document.getElementById('tool-select'),
+            text: document.getElementById('tool-text'),
+            pen: document.getElementById('tool-pen'),
+            eraser: document.getElementById('tool-eraser')
+        };
+
+        function setToolMode(tool) {
+            state.activeTool = tool;
+            Object.keys(toolBtns).forEach(k => {
+                toolBtns[k].classList.remove('active', 'border-brand-500', 'bg-slate-700', 'text-white');
+                toolBtns[k].classList.add('bg-slate-900/60', 'border-slate-700', 'text-slate-300');
+            });
+            toolBtns[tool].classList.add('active', 'border-brand-500', 'bg-slate-700', 'text-white');
+            toolBtns[tool].classList.remove('bg-slate-900/60', 'border-slate-700', 'text-slate-300');
+
+            document.querySelectorAll('.page-container canvas:last-of-type').forEach(c => {
+                if (tool === 'pen') {
+                    c.style.cursor = 'crosshair';
+                    c.style.pointerEvents = 'auto';
+                } else if (tool === 'eraser') {
+                    c.style.cursor = 'cell';
+                    c.style.pointerEvents = 'auto';
+                } else if (tool === 'text') {
+                    c.style.cursor = 'text';
+                    c.style.pointerEvents = 'auto';
+                } else {
+                    c.style.cursor = 'default';
+                    c.style.pointerEvents = 'none';
+                }
+            });
+        }
+
+        Object.keys(toolBtns).forEach(tool => {
+            toolBtns[tool].addEventListener('click', () => setToolMode(tool));
+        });
+
+        document.getElementById('pen-color').addEventListener('input', (e) => {
+            state.penColor = e.target.value;
+            document.getElementById('pen-color-hex').textContent = e.target.value;
+        });
+        document.getElementById('stroke-width').addEventListener('input', (e) => {
+            state.strokeWidth = parseInt(e.target.value);
+            document.getElementById('stroke-val').textContent = `${e.target.value}px`;
+        });
+
+        document.getElementById('btn-clear-canvas').addEventListener('click', () => {
+            const pageIdx = state.pageNum - 1;
+            state.pagesData[pageIdx].drawings = [];
+            state.pagesData[pageIdx].texts = [];
+            state.pagesData[pageIdx].images = [];
+
+            const containers = document.querySelectorAll('.page-container');
+            if (containers[pageIdx]) {
+                const drawCanvas = containers[pageIdx].querySelector('canvas:nth-child(2)');
+                const textLayer = containers[pageIdx].querySelector('div:last-child');
+                redrawPageDrawings(pageIdx, drawCanvas, getDevicePixelRatio());
+                textLayer.innerHTML = '';
+            }
+            deselectActiveText();
+            deselectActiveImage();
+            saveStateToHistory();
+            showToast('ล้างรายการทั้งหมดในหน้านี้แล้ว', 'info');
+        });
+
+        document.getElementById('btn-prev').addEventListener('click', () => {
+            if (state.pageNum > 1) {
+                state.pageNum--;
+                pageNumInput.value = state.pageNum;
+                scrollToPage(state.pageNum);
+            }
+        });
+        document.getElementById('btn-next').addEventListener('click', () => {
+            if (state.pageNum < state.totalPages) {
+                state.pageNum++;
+                pageNumInput.value = state.pageNum;
+                scrollToPage(state.pageNum);
+            }
+        });
+        pageNumInput.addEventListener('change', (e) => {
+            let val = parseInt(e.target.value);
+            if (val >= 1 && val <= state.totalPages) {
+                state.pageNum = val;
+                scrollToPage(val);
+            } else {
+                e.target.value = state.pageNum;
+            }
+        });
+
+        function scrollToPage(pageNo) {
+            const containers = document.querySelectorAll('.page-container');
+            if (containers[pageNo - 1]) {
+                containers[pageNo - 1].scrollIntoView({behavior: 'smooth', block: 'start'});
+            }
+        }
+
+        document.getElementById('btn-zoom-in').addEventListener('click', () => {
+            if (state.scale < 2.5) {
+                state.scale += 0.2;
+                updateZoom();
+            }
+        });
+        document.getElementById('btn-zoom-out').addEventListener('click', () => {
+            if (state.scale > 0.6) {
+                state.scale -= 0.2;
+                updateZoom();
+            }
+        });
+        document.getElementById('btn-zoom-fit').addEventListener('click', () => {
+            state.scale = 1.0;
+            updateZoom();
+        });
+
+        async function updateZoom() {
+            zoomPercent.textContent = `${Math.round(state.scale * 100)}%`;
+            showLoading('กำลังปรับขนาดหน้า...');
+            await renderAllPages();
+            hideLoading();
+        }
+
+        // รองรับการบันทึกทับไฟล์เดิม (Save / Overwrite) ผ่าน File System Access API
+        btnDownload.addEventListener('click', async () => {
+            deselectActiveText();
+            deselectActiveImage();
+            showLoading('กำลังประมวลผลและบันทึกไฟล์ PDF...');
+            try {
+                const newPdfDoc = await PDFLib.PDFDocument.create();
+
+                for (let i = 1; i <= state.totalPages; i++) {
+                    const pageIndex = i - 1;
+                    const pdfPageObj = await state.pdfDoc.getPage(i);
+                    const unscaledViewport = pdfPageObj.getViewport({scale: 1.0});
+
+                    const exportScale = 3;
+                    const exportViewport = pdfPageObj.getViewport({scale: exportScale});
+
+                    const exportCanvas = document.createElement('canvas');
+                    exportCanvas.width = exportViewport.width;
+                    exportCanvas.height = exportViewport.height;
+                    const ctx = exportCanvas.getContext('2d');
+
+                    await pdfPageObj.render({
+                        canvasContext: ctx,
+                        viewport: exportViewport
+                    }).promise;
+
+                    const pageImages = state.pagesData[pageIndex].images || [];
+                    for (const imgObj of pageImages) {
+                        await new Promise((resolve) => {
+                            const img = new Image();
+                            img.onload = () => {
+                                ctx.drawImage(
+                                    img,
+                                    imgObj.x * exportScale,
+                                    imgObj.y * exportScale,
+                                    imgObj.width * exportScale,
+                                    imgObj.height * exportScale
+                                );
+                                resolve();
+                            };
+                            img.src = imgObj.src;
+                        });
+                    }
+
+                    const pageDrawings = state.pagesData[pageIndex].drawings;
+                    pageDrawings.forEach(pathObj => {
+                        if (pathObj.points.length < 2) return;
+                        ctx.beginPath();
+                        ctx.strokeStyle = pathObj.color;
+                        ctx.lineWidth = pathObj.width * exportScale;
+                        ctx.lineCap = 'round';
+                        ctx.lineJoin = 'round';
+
+                        ctx.moveTo(pathObj.points[0].x * exportScale, pathObj.points[0].y * exportScale);
+                        for (let p = 1; p < pathObj.points.length; p++) {
+                            ctx.lineTo(pathObj.points[p].x * exportScale, pathObj.points[p].y * exportScale);
+                        }
+                        ctx.stroke();
+                    });
+
+                    const pageTexts = state.pagesData[pageIndex].texts || [];
+                    pageTexts.forEach(textObj => {
+                        if (!textObj.text || !textObj.text.trim()) return;
+
+                        ctx.save();
+
+                        const textX = (textObj.x + 4) * exportScale;
+                        const textY = (textObj.y + 4) * exportScale;
+                        const fontSize = textObj.fontSize * exportScale;
+
+                        const fontStyle = textObj.isItalic ? 'italic' : 'normal';
+                        const fontWeight = textObj.isBold ? 'bold' : 'normal';
+                        ctx.font = `${fontStyle} ${fontWeight} ${fontSize}px 'Sarabun', 'Inter', sans-serif`;
+
+                        const lines = textObj.text.split('\n');
+                        const lineHeight = fontSize * 1.2;
+
+                        if (textObj.bgColor && textObj.bgColor !== 'transparent') {
+                            let maxLineWidth = 0;
+                            lines.forEach(l => {
+                                const m = ctx.measureText(l);
+                                if (m.width > maxLineWidth) maxLineWidth = m.width;
+                            });
+                            ctx.fillStyle = textObj.bgColor;
+                            ctx.fillRect(textX - (2 * exportScale), textY - (2 * exportScale), maxLineWidth + (8 * exportScale), lines.length * lineHeight + (4 * exportScale));
+                        }
+
+                        ctx.fillStyle = textObj.color;
+                        ctx.textBaseline = 'top';
+
+                        lines.forEach((lineText, lIdx) => {
+                            ctx.fillText(lineText, textX, textY + (lIdx * lineHeight));
+                        });
+
+                        ctx.restore();
+                    });
+
+                    const pageImgDataDataUrl = exportCanvas.toDataURL('image/png', 1.0);
+                    const embeddedImage = await newPdfDoc.embedPng(pageImgDataDataUrl);
+
+                    const newPage = newPdfDoc.addPage([unscaledViewport.width, unscaledViewport.height]);
+                    newPage.drawImage(embeddedImage, {
+                        x: 0,
+                        y: 0,
+                        width: unscaledViewport.width,
+                        height: unscaledViewport.height
+                    });
+                }
+
+                const pdfBytes = await newPdfDoc.save();
+
+                // ตรวจสอบว่าเบราว์เซอร์รองรับการเขียนไฟล์ทับผ่าน File System Access API หรือไม่
+                if ('showSaveFilePicker' in window) {
+                    try {
+                        const options = {
+                            suggestedName: state.fileName,
+                            types: [{
+                                description: 'PDF Documents',
+                                accept: {'application/pdf': ['.pdf']},
+                            }],
+                        };
+                        const handle = await window.showSaveFilePicker(options);
+                        const writable = await handle.createWritable();
+                        await writable.write(pdfBytes);
+                        await writable.close();
+                        showToast('บันทึกทับไฟล์สำเร็จแล้ว!', 'success');
+                        hideLoading();
+                        return;
+                    } catch (err) {
+                        if (err.name !== 'AbortError') {
+                            console.warn('File picker error, falling back to standard download:', err);
+                        } else {
+                            hideLoading();
+                            return; // ถ้าผู้ใช้กด Cancel ในหน้าต่างบันทึก ให้ยกเลิกเงียบๆ
+                        }
+                    }
+                }
+
+                // วิธีสำรองกรณีเบราว์เซอร์ไม่รองรับ API
+                const blob = new Blob([pdfBytes], {type: 'application/pdf'});
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = state.fileName;
+                link.click();
+
+                showToast('บันทึกไฟล์ PDF สำเร็จแล้ว!', 'success');
+            } catch (err) {
+                console.error('PDF Export Error:', err);
+                showToast('เกิดข้อผิดพลาดในการบันทึก PDF', 'error');
+            } finally {
+                hideLoading();
+            }
+        });
+
+        btnPrint.addEventListener('click', async () => {
+            deselectActiveText();
+            deselectActiveImage();
+            showLoading('กำลังเตรียมหน้ากระดาษสำหรับพิมพ์...');
+
+            const oldScale = state.scale;
+
+            try {
+                state.scale = 1.5;
+                await renderAllPages();
+
+                hideLoading();
+                window.print();
+
+                setTimeout(async () => {
+                    state.scale = oldScale;
+                    await renderAllPages();
+                }, 1000);
+            } catch (err) {
+                console.error('Print Error:', err);
+                hideLoading();
+                showToast('เกิดข้อผิดพลาดในการพิมพ์', 'error');
+                state.scale = oldScale;
+                await renderAllPages();
+            }
+        });
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastMsg.textContent = message;
+            if (type === 'error') {
+                toastIcon.className = 'fa-solid fa-circle-exclamation text-rose-500 text-lg';
+            } else if (type === 'success') {
+                toastIcon.className = 'fa-solid fa-circle-check text-emerald-500 text-lg';
+            } else {
+                toastIcon.className = 'fa-solid fa-circle-info text-brand-500 text-lg';
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        function showLoading(text) {
+            loadingText.textContent = text;
+            loadingOverlay.classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            loadingOverlay.classList.add('hidden');
+        }
+    </script>
+</body>
+
+</html>
