@@ -225,11 +225,93 @@
                 padding: 0 !important;
             }
         }
+
+        /* =========================
+   RESPONSIVE MOBILE
+========================= */
+
+        .page-canvas-wrapper {
+            position: relative;
+            margin: 0 auto;
+            max-width: 100%;
+        }
+
+        .page-canvas-wrapper canvas {
+            max-width: 100%;
+            height: auto;
+        }
+
+        #canvasPagesContainer {
+            width: 100%;
+        }
+
+        @media (max-width:1024px) {
+
+            .page-canvas-wrapper {
+                width: 100% !important;
+                height: auto !important;
+            }
+
+            .page-canvas-wrapper canvas {
+                width: 100% !important;
+                height: auto !important;
+            }
+
+            #thumbnailList {
+                display: flex;
+                flex-direction: row;
+                overflow-x: auto;
+                overflow-y: hidden;
+                gap: 10px;
+            }
+
+            #thumbnailList>div {
+                flex-shrink: 0;
+                width: 90px;
+            }
+
+            #floatingTextToolbar {
+                position: fixed !important;
+                left: 10px !important;
+                right: 10px !important;
+                bottom: 10px !important;
+                top: auto !important;
+                overflow-x: auto;
+                max-width: none !important;
+            }
+        }
+
+        @media (max-width:768px) {
+
+            .tool-btn span {
+                display: none;
+            }
+
+            #uploadPlaceholder {
+                padding: 20px;
+            }
+
+            #exportDropdown {
+                left: 10px !important;
+                right: 10px !important;
+                width: auto !important;
+            }
+        }
+
+        @media (max-width:480px) {
+
+            header button span {
+                display: none;
+            }
+
+            #zoomDisplay {
+                font-size: 12px;
+            }
+        }
     </style>
 </head>
 
-<body
-    class="h-screen flex flex-col font-sans antialiased selection:bg-crimson-500 selection:text-white overflow-hidden">
+<body class="min-h-screen flex flex-col font-sans antialiased selection:bg-crimson-500 selection:text-white">
 
     <!-- START: REDLINE PDF Global Navbar & Navigation Hub -->
     <!-- 1. Top Navbar Header -->
@@ -237,7 +319,7 @@
         class="bg-gray-950 border-b border-gray-800 h-16 flex-shrink-0 z-40 px-6 flex items-center justify-between font-sans text-xs text-white relative">
         <!-- ฝั่งซ้าย: โลโก้แบรนด์ -->
         <div class="flex items-center gap-3">
-            <a href="index.html" class="flex items-center gap-2.5">
+            <a href="#" class="flex items-center gap-2.5">
                 <div
                     class="w-9 h-9 rounded-xl bg-red-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">
                     <i class="fa-solid fa-file-pdf"></i>
@@ -358,7 +440,7 @@
 
     <!-- Editor Action Header Bar -->
     <header class="border-b border-tech-border bg-white/95 z-30 backdrop-blur-md flex-shrink-0">
-        <div class="max-w-[1700px] mx-auto px-4 h-12 flex items-center justify-between">
+        <div class="max-w-[1700px] mx-auto px-3 py-2 flex flex-wrap gap-2 items-center justify-between">
             <div class="flex items-center gap-3">
                 <div
                     class="w-20 h-6 rounded bg-crimson-500 flex items-center justify-center text-white font-mono font-bold text-[10px] red-glow">
@@ -367,7 +449,8 @@
                 <div class="flex items-center gap-2">
                     <span class="font-mono text-sm font-bold tracking-tight text-tech-dark">ตัวแก้ไขเอกสารPDF</span>
                     <span
-                        class="text-[9px] font-mono tracking-widest text-crimson-600 bg-crimson-50 border border-crimson-100 px-1.5 py-0.5 rounded uppercase font-semibold">V 1.0</span>
+                        class="text-[9px] font-mono tracking-widest text-crimson-600 bg-crimson-50 border border-crimson-100 px-1.5 py-0.5 rounded uppercase font-semibold">V
+                        1.0</span>
                 </div>
                 <div
                     class="hidden md:flex items-center gap-2 border-l border-tech-border pl-3 ml-2 font-mono text-xs text-tech-muted">
@@ -449,10 +532,11 @@
         </button>
     </div>
 
-    <div class="flex-grow flex overflow-hidden relative">
+    <div class="flex-grow flex flex-col lg:flex-row overflow-hidden relative">
 
         <!-- LEFT SIDEBAR: TOOLBAR & SUB-PROPERTIES -->
-        <aside class="w-16 md:w-72 bg-white border-r border-tech-border flex flex-col flex-shrink-0 z-20 shadow-sm">
+        <aside class="w-full lg:w-72 bg-white border-r border-tech-border flex flex-col flex-shrink-0 z-20 shadow-sm">
+
             <div class="p-3 border-b border-tech-border font-mono">
                 <div class="text-[10px] text-tech-muted font-bold tracking-widest uppercase mb-2 hidden md:block">
                     Primary Tools</div>
@@ -643,6 +727,7 @@
             class="flex-grow bg-tech-darker relative overflow-auto p-8 flex flex-col items-center justify-start select-none"
             id="viewportContainer" onclick="handleViewportBackgroundClick(event)">
 
+
             <!-- Custom Eraser Cursor Element with Eraser Icon -->
             <div id="eraserCursor">
                 <i id="eraserCursorIcon" class="fa-solid fa-eraser"></i>
@@ -743,7 +828,7 @@
         </main>
 
         <!-- RIGHT SIDEBAR: PAGE THUMBNAILS & LAYER NAVIGATOR -->
-        <aside class="w-20 md:w-60 bg-white border-l border-tech-border flex flex-col flex-shrink-0 z-20">
+        <aside class="w-full lg:w-60 bg-white border-l border-tech-border flex flex-col flex-shrink-0 z-20">
             <div class="p-3 border-b border-tech-border font-mono flex items-center justify-between">
                 <span class="text-[10px] text-tech-dark font-bold uppercase tracking-wider hidden md:inline">Pages
                     Overview</span>
