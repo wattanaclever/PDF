@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDF EDITOR - ตัวแก้ไขเอกสารPDF</title>
 
     <!-- Tailwind CSS -->
@@ -255,6 +255,7 @@
         </div>
 
         <div class="flex items-center gap-2 sm:gap-3">
+            <!-- Mobile Hub Button -->
             <button onclick="toggleNavPopup()"
                 class="md:hidden px-2.5 py-1.5 bg-gray-900 hover:bg-gray-800 border border-gray-700 rounded-lg text-gray-100 text-xs font-bold flex items-center gap-1.5">
                 <i class="fa-solid fa-th text-red-500"></i>
@@ -302,7 +303,7 @@
                     <span class="font-extrabold text-lg text-gray-100 group-hover:text-red-400 tracking-wide">Merge
                         PDF</span>
                     <span
-                        class="text-xs text-gray-400 mt-2 font-medium leading-relaxed">รวมไฟล์เอกสารหลายหน้าเข้าด้วยกันเป็นเล่มเดียว[cite: 1]</span>
+                        class="text-xs text-gray-400 mt-2 font-medium leading-relaxed">รวมไฟล์เอกสารหลายหน้าเข้าด้วยกันเป็นเล่มเดียว</span>
                 </a>
 
                 <a href="SplitPDF.html"
@@ -315,7 +316,7 @@
                         PDF</span>
                     <span
                         class="text-xs text-gray-400 mt-2 font-medium leading-relaxed">แยกหน้าหรือตัดเลือกบางส่วนของเอกสาร
-                        PDF[cite: 1]</span>
+                        PDF</span>
                 </a>
 
                 <a href="EditPDF.html"
@@ -327,7 +328,7 @@
                     <span class="font-extrabold text-lg text-gray-100 group-hover:text-red-400 tracking-wide">Edit
                         PDF</span>
                     <span class="text-xs text-gray-400 mt-2 font-medium leading-relaxed">เขียน วาด พิมพ์
-                        และเติมข้อความบนหน้า PDF[cite: 1]</span>
+                        และเติมข้อความบนหน้า PDF</span>
                 </a>
             </div>
         </div>
@@ -365,7 +366,8 @@
             </div>
 
             <div class="flex items-center gap-1.5 sm:gap-2 relative">
-                <div class="flex items-center bg-tech-panel p-0.5 sm:p-1 rounded border border-tech-border mr-1 sm:mr-2">
+                <div
+                    class="flex items-center bg-tech-panel p-0.5 sm:p-1 rounded border border-tech-border mr-1 sm:mr-2">
                     <button id="btnUndo" onclick="executeUndo()" disabled
                         class="px-2 py-1 rounded text-tech-dark hover:bg-white disabled:opacity-30 transition-all font-mono text-xs flex items-center gap-1 font-bold"
                         title="Undo Action (Ctrl+Z)">
@@ -400,9 +402,11 @@
                         <i class="fa-solid fa-chevron-down text-[10px]"></i>
                     </button>
 
+                    <!-- Export Dropdown Menu (With Click Outside Handler) -->
                     <div id="exportDropdown"
                         class="hidden absolute right-0 mt-2 z-50 w-60 sm:w-64 bg-white border-2 border-tech-dark rounded-xl shadow-2xl p-2 font-mono text-xs">
-                        <div class="px-3 py-2 font-bold text-tech-dark border-b border-tech-border flex justify-between items-center">
+                        <div
+                            class="px-3 py-2 font-bold text-tech-dark border-b border-tech-border flex justify-between items-center">
                             <span>EXPORT FORMAT</span>
                             <span class="text-[9px] text-crimson-600 bg-crimson-50 px-1.5 rounded">WYSIWYG</span>
                         </div>
@@ -410,8 +414,9 @@
                             class="w-full text-left px-3 py-2.5 rounded hover:bg-crimson-50 hover:text-crimson-600 font-bold transition-colors flex items-center gap-2.5">
                             <i class="fa-solid fa-file-pdf text-crimson-600 text-sm"></i>
                             <div>
-                                <div>Synthesized PDF Document</div>
-                                <div class="text-[9px] text-tech-muted font-normal">Vector & Canvas Multi-Page Render</div>
+                                <div>PDF Document</div>
+                                <div class="text-[9px] text-tech-muted font-normal">Vector & Canvas Multi-Page Render
+                                </div>
                             </div>
                         </button>
                         <button onclick="exportAsImage('png')"
@@ -441,8 +446,10 @@
     <div class="flex-grow flex overflow-hidden relative flex-col md:flex-row">
 
         <!-- LEFT SIDEBAR: TOOLBAR & SUB-PROPERTIES -->
-        <aside class="w-full md:w-72 bg-white border-r border-tech-border flex flex-row md:flex-col flex-shrink-0 z-20 shadow-sm">
-            <div class="p-2 md:p-3 border-b border-tech-border font-mono flex md:block items-center justify-between w-full">
+        <aside
+            class="w-full md:w-72 bg-white border-r border-tech-border flex flex-row md:flex-col flex-shrink-0 z-20 shadow-sm">
+            <div
+                class="p-2 md:p-3 border-b border-tech-border font-mono flex md:block items-center justify-between w-full">
                 <div class="text-[10px] text-tech-muted font-bold tracking-widest uppercase mb-2 hidden md:block">
                     Primary Tools</div>
                 <div class="grid grid-cols-4 md:grid-cols-2 gap-1.5 w-full">
@@ -469,7 +476,10 @@
                 </div>
             </div>
 
+            <!-- Dynamic Tool Sub-Panel (Hidden on mobile portrait to save space, visible on md+) -->
             <div class="flex-grow overflow-y-auto p-4 space-y-5 font-mono text-xs hidden md:block" id="subToolPanel">
+
+                <!-- PROPS: TEXT TOOL -->
                 <div id="textOptions" class="space-y-3">
                     <div
                         class="text-[10px] text-crimson-600 font-bold uppercase tracking-wider flex items-center gap-1">
@@ -529,8 +539,10 @@
                     </div>
                 </div>
 
+                <!-- SELECTED TEXT PROPERTIES PANEL -->
                 <div id="sidebarTextEditorPanel" class="pt-4 border-t border-tech-border space-y-3 hidden">
-                    <div class="text-[10px] text-crimson-600 font-bold uppercase tracking-wider flex items-center gap-1">
+                    <div
+                        class="text-[10px] text-crimson-600 font-bold uppercase tracking-wider flex items-center gap-1">
                         <i class="fa-solid fa-pen-to-square"></i> Selected Text Studio
                     </div>
 
@@ -580,9 +592,11 @@
                         <label class="text-[10px] text-tech-muted font-bold block mb-1">STYLE</label>
                         <div class="grid grid-cols-2 gap-1.5">
                             <button id="sidebarBtnBold" onclick="toggleSidebarFormat('bold')"
-                                class="py-1.5 border border-tech-border rounded font-bold hover:bg-crimson-50 hover:text-crimson-600 transition-all text-center">Bold (B)</button>
+                                class="py-1.5 border border-tech-border rounded font-bold hover:bg-crimson-50 hover:text-crimson-600 transition-all text-center">Bold
+                                (B)</button>
                             <button id="sidebarBtnItalic" onclick="toggleSidebarFormat('italic')"
-                                class="py-1.5 border border-tech-border rounded italic hover:bg-crimson-50 hover:text-crimson-600 transition-all text-center">Italic (I)</button>
+                                class="py-1.5 border border-tech-border rounded italic hover:bg-crimson-50 hover:text-crimson-600 transition-all text-center">Italic
+                                (I)</button>
                         </div>
                     </div>
 
@@ -602,6 +616,7 @@
                     </div>
                 </div>
 
+                <!-- PROPS: DRAW TOOL -->
                 <div id="drawOptions" class="space-y-3 hidden">
                     <div
                         class="text-[10px] text-crimson-600 font-bold uppercase tracking-wider flex items-center gap-1">
@@ -644,6 +659,7 @@
                     </div>
                 </div>
 
+                <!-- PROPS: ERASER TOOL -->
                 <div id="eraserOptions" class="space-y-3 hidden">
                     <div
                         class="text-[10px] text-crimson-600 font-bold uppercase tracking-wider flex items-center gap-1">
@@ -658,10 +674,11 @@
                             oninput="updateEraserCursorSize(this.value)" class="w-full accent-crimson-500">
                     </div>
                     <p class="text-[10px] text-tech-muted leading-relaxed">
-                        Drag across canvas to erase text elements or drawn vector strokes in real-time.[cite: 1]
+                        Drag across canvas to erase text elements or drawn vector strokes in real-time.
                     </p>
                 </div>
 
+                <!-- Selected Object Actions (Layer / Delete) -->
                 <div id="objectActionsPanel" class="pt-4 border-t border-tech-border space-y-2 hidden">
                     <div class="text-[10px] text-tech-muted font-bold uppercase tracking-wider">Object Controls</div>
                     <div class="grid grid-cols-2 gap-1.5">
@@ -683,6 +700,7 @@
 
             </div>
 
+            <!-- Page Scale / Zoom Controls Footer -->
             <div
                 class="p-2 md:p-3 border-t border-tech-border font-mono text-xs flex items-center justify-between bg-tech-panel w-auto md:w-full">
                 <button onclick="changeZoom(-0.1)"
@@ -698,10 +716,12 @@
             class="flex-grow bg-tech-darker relative overflow-auto p-4 sm:p-8 flex flex-col items-center justify-start select-none"
             id="viewportContainer" onclick="handleViewportBackgroundClick(event)">
 
+            <!-- Custom Eraser Cursor Element with Eraser Icon -->
             <div id="eraserCursor">
                 <i id="eraserCursorIcon" class="fa-solid fa-eraser"></i>
             </div>
 
+            <!-- Empty Document Upload Screen -->
             <div id="uploadPlaceholder"
                 class="m-auto tech-card p-6 sm:p-10 rounded-2xl max-w-lg w-full text-center border-2 border-dashed border-tech-border relative overflow-hidden group cursor-pointer"
                 onclick="document.getElementById('hiddenFileInput').click()">
@@ -710,19 +730,24 @@
                     class="w-16 h-16 rounded-full bg-crimson-50 border border-crimson-100 text-crimson-500 flex items-center justify-center mx-auto mb-4 text-2xl group-hover:bg-crimson-500 group-hover:text-white transition-all red-glow">
                     <i class="fa-solid fa-file-arrow-up"></i>
                 </div>
-                <h2 class="font-mono text-base sm:text-lg font-bold text-tech-dark uppercase tracking-wide">Load PDF Document[cite: 1]</h2>
+                <h2 class="font-mono text-base sm:text-lg font-bold text-tech-dark uppercase tracking-wide">Load PDF
+                    Document</h2>
                 <p class="font-mono text-xs text-tech-muted mt-2">Click to select file or drag & drop PDF here to begin
-                    synthesizing[cite: 1]</p>
+                    synthesizing</p>
             </div>
 
+            <!-- Multi-Page Canvas Rendering List -->
             <div id="canvasPagesContainer" class="space-y-8 my-auto hidden">
+                <!-- Dynamically generated page wrappers go here -->
             </div>
 
         </main>
 
         <!-- RIGHT SIDEBAR: PAGE THUMBNAILS & LAYER NAVIGATOR -->
-        <aside class="w-full md:w-60 bg-white border-t md:border-t-0 md:border-l border-tech-border flex flex-row md:flex-col flex-shrink-0 z-20 h-24 md:h-auto">
-            <div class="p-2 md:p-3 border-r md:border-r-0 md:border-b border-tech-border font-mono flex flex-col md:flex-row items-center justify-between">
+        <aside
+            class="w-full md:w-60 bg-white border-t md:border-t-0 md:border-l border-tech-border flex flex-row md:flex-col flex-shrink-0 z-20 h-24 md:h-auto">
+            <div
+                class="p-2 md:p-3 border-r md:border-r-0 md:border-b border-tech-border font-mono flex flex-col md:flex-row items-center justify-between">
                 <span class="text-[10px] text-tech-dark font-bold uppercase tracking-wider hidden md:inline">Pages
                     Overview</span>
                 <span id="pageCountBadge"
@@ -730,7 +755,9 @@
                     Pages</span>
             </div>
 
-            <div id="thumbnailList" class="flex-grow overflow-x-auto md:overflow-y-auto p-2 md:p-3 space-x-2 md:space-x-0 md:space-y-3 flex md:flex-col">
+            <div id="thumbnailList"
+                class="flex-grow overflow-x-auto md:overflow-y-auto p-2 md:p-3 space-x-2 md:space-x-0 md:space-y-3 flex md:flex-col">
+                <!-- Thumbnails render here -->
             </div>
         </aside>
 
@@ -774,15 +801,12 @@
         let activeInlineInput = null;
         let zoomTimeout = null;
 
-        // ตัวแปรสำหรับรองรับการ Pinch-to-Zoom (ซูมด้วยสองนิ้ว)
-        let initialPinchDistance = null;
-
         window.onload = () => {
             setupKeyboardShortcuts();
             setupDragAndDrop();
-            setupPinchToZoom();
             updateEraserCursorSize(document.getElementById('eraserSize').value);
 
+            // ตรวจจับการคลิกพื้นที่ว่างรอบนอก เพื่อปิด Pop up Export Menu อัตโนมัติ
             window.addEventListener('click', (e) => {
                 const exportDropdown = document.getElementById('exportDropdown');
                 const exportBtn = document.getElementById('exportDropdownBtn');
@@ -798,44 +822,6 @@
                 preparePrintDOM();
             };
         };
-
-        // ระบบจับพฤติกรรมการถ่างนิ้ว (Pinch-to-Zoom) บนหน้าจอสัมผัส
-        function setupPinchToZoom() {
-            const viewport = document.getElementById('viewportContainer');
-
-            viewport.addEventListener('touchstart', (e) => {
-                if (e.touches.length === 2) {
-                    initialPinchDistance = Math.hypot(
-                        e.touches[0].clientX - e.touches[1].clientX,
-                        e.touches[0].clientY - e.touches[1].clientY
-                    );
-                }
-            }, { passive: true });
-
-            viewport.addEventListener('touchmove', (e) => {
-                if (e.touches.length === 2 && initialPinchDistance !== null) {
-                    const currentDistance = Math.hypot(
-                        e.touches[0].clientX - e.touches[1].clientX,
-                        e.touches[0].clientY - e.touches[1].clientY
-                    );
-                    const diff = currentDistance - initialPinchDistance;
-                    if (Math.abs(diff) > 25) {
-                        if (diff > 0) {
-                            changeZoom(0.05);
-                        } else {
-                            changeZoom(-0.05);
-                        }
-                        initialPinchDistance = currentDistance;
-                    }
-                }
-            }, { passive: true });
-
-            viewport.addEventListener('touchend', (e) => {
-                if (e.touches.length < 2) {
-                    initialPinchDistance = null;
-                }
-            });
-        }
 
         function toggleNavPopup() {
             const modal = document.getElementById('navPopupModal');
@@ -1061,6 +1047,13 @@
             cursor.style.height = `${val * 2}px`;
         }
 
+        // --- ตำแหน่งที่แก้: เพิ่มตัวแปรสำหรับจัดการ Touch / Pinch Zoom ---
+        let touchStartDist = 0;
+        let isPinching = false;
+        let lastTouchX = 0;
+        let lastTouchY = 0;
+        let isPanScrolling = false;
+
         function bindCanvasEvents(canvas, pageNum) {
             const getCurrentRenderScale = () => zoomLevel * 1.5;
 
@@ -1076,7 +1069,24 @@
             };
 
             const startAction = (e) => {
-                if (e.touches && e.touches.length > 1) return; // ข้ามการทำงานถ้าใช้นิ้วซูม
+                // --- ตำแหน่งที่แก้: รองรับ Multi-touch สำหรับ Pinch Zoom ---
+                if (e.touches && e.touches.length === 2) {
+                    isPinching = true;
+                    touchStartDist = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
+                    return;
+                }
+
+                // --- ตำแหน่งที่แก้: โหมดหน้าจอเล็ก: ถ้าไม่ใช่เครื่องมือวาด/เลือก ให้ใช้นิ้วเลื่อน Pan Scroll เอกสารได้ ---
+                if (e.touches && e.touches.length === 1 && (currentTool === 'select' && window.innerWidth < 768)) {
+                    isPanScrolling = true;
+                    lastTouchX = e.touches[0].clientX;
+                    lastTouchY = e.touches[0].clientY;
+                    return;
+                }
+
                 activePageIndex = pageNum;
                 const pos = getUnscaledPos(e);
 
@@ -1158,14 +1168,39 @@
             };
 
             const moveAction = (e) => {
-                if (e.touches && e.touches.length > 1) return;
+                // --- ตำแหน่งที่แก้: ระบบ Pinch-to-Zoom ด้วยการถ่าง/หุบนิ้ว ---
+                if (isPinching && e.touches && e.touches.length === 2) {
+                    const currentDist = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
+                    const diff = currentDist - touchStartDist;
+                    if (Math.abs(diff) > 30) {
+                        changeZoom(diff > 0 ? 0.05 : -0.05);
+                        touchStartDist = currentDist;
+                    }
+                    return;
+                }
+
+                // --- ตำแหน่งที่แก้: ระบบ Touch Pan Scrolling สำหรับหน้าจอเล็ก ---
+                if (isPanScrolling && e.touches && e.touches.length === 1) {
+                    const deltaX = e.touches[0].clientX - lastTouchX;
+                    const deltaY = e.touches[0].clientY - lastTouchY;
+                    const vp = document.getElementById('viewportContainer');
+                    vp.scrollLeft -= deltaX;
+                    vp.scrollTop -= deltaY;
+                    lastTouchX = e.touches[0].clientX;
+                    lastTouchY = e.touches[0].clientY;
+                    return;
+                }
+
                 const pos = getUnscaledPos(e);
 
                 if (currentTool === 'eraser') {
                     const cursor = document.getElementById('eraserCursor');
                     cursor.style.display = 'block';
-                    cursor.style.left = `${e.touches ? e.touches[0].clientX : e.clientX}px`;
-                    cursor.style.top = `${e.touches ? e.touches[0].clientY : e.clientY}px`;
+                    cursor.style.left = `${e.clientX}px`;
+                    cursor.style.top = `${e.clientY}px`;
                 } else {
                     document.getElementById('eraserCursor').style.display = 'none';
                 }
@@ -1201,6 +1236,9 @@
             };
 
             const endAction = () => {
+                isPinching = false;
+                isPanScrolling = false;
+
                 if (isDragging || isResizing) {
                     saveHistoryState();
                 }
@@ -1244,11 +1282,10 @@
                 }
             });
 
-            canvas.addEventListener('touchstart', (e) => { startAction(e); }, { passive: true });
-            canvas.addEventListener('touchmove', (e) => { moveAction(e); }, { passive: true });
+            canvas.addEventListener('touchstart', (e) => {startAction(e);}, {passive: false});
+            canvas.addEventListener('touchmove', (e) => {moveAction(e);}, {passive: false});
             canvas.addEventListener('touchend', endAction);
         }
-
         function showSidebarTextEditor(textObj) {
             const panel = document.getElementById('sidebarTextEditorPanel');
             document.getElementById('sidebarFontFamily').value = textObj.fontFamily;
@@ -1700,11 +1737,12 @@
             document.getElementById('exportDropdown').classList.toggle('hidden');
         }
 
+        // --- ตำแหน่งที่แก้: ฟังก์ชัน Export PDF ให้อ้างอิงความละเอียดต้นฉบับ (High Fidelity / Vector Scale) ---
         async function exportAsPDF() {
             if (!currentPdfDoc) return;
             closeActiveInlineEditor();
             toggleExportMenu();
-            showToast('Synthesizing Multi-Page PDF Document...', 'info');
+            showToast('Synthesizing Multi-Page High-Res PDF Document...', 'info');
 
             try {
                 const pdfDoc = await PDFLib.PDFDocument.load(pdfBytesArray);
@@ -1712,7 +1750,9 @@
 
                 for (let i = 1; i <= pageCount; i++) {
                     const dim = pageDimensions[i] || {width: 595, height: 842};
-                    const exportScale = 2.0;
+
+                    // บังคับใช้ความละเอียดสูง (Scale 3.0) คงความคมชัดต้นฉบับ 100% แยกอิสระจาก Zoom บนหน้าจอ
+                    const exportScale = 3.0;
 
                     const cleanCanvas = document.createElement('canvas');
                     cleanCanvas.width = dim.width * exportScale;
@@ -1736,37 +1776,30 @@
 
                 const pdfBytes = await pdfDoc.save();
                 downloadBlob(new Blob([pdfBytes], {type: 'application/pdf'}), `REDLINE_EDITED_${Date.now()}.pdf`);
-                showToast('PDF Exported Successfully', 'success');
+                showToast('High-Res PDF Exported Successfully', 'success');
             } catch (err) {
                 console.error("PDF Export error:", err);
                 showToast('Failed to export PDF', 'error');
             }
         }
 
+        // --- ตำแหน่งที่แก้: ฟังก์ชัน Export Image ให้เรนเดอร์ความคมชัดสูงระดับ 3x ---
         async function exportAsImage(format) {
             if (!currentPdfDoc) return;
             closeActiveInlineEditor();
             toggleExportMenu();
 
             const targetPage = activePageIndex || 1;
-            const pageWrapper = document.getElementById(`pageWrapper_${targetPage}`);
-            const pdfCanvas = pageWrapper.querySelector('canvas');
+            const dim = pageDimensions[targetPage] || {width: 595, height: 842};
+            const exportScale = 3.0; // คงความคมชัดต้นฉบับ
 
-            const renderScale = zoomLevel * 1.5;
-            const cleanCanvas = document.createElement('canvas');
-            cleanCanvas.width = pdfCanvas.width;
-            cleanCanvas.height = pdfCanvas.height;
-            const cCtx = cleanCanvas.getContext('2d');
-
-            const objects = pageOverlays[targetPage] || [];
-            objects.forEach(obj => {
-                if (obj.type === 'text') renderText(cCtx, obj, renderScale);
-                else if (obj.type === 'path') renderPath(cCtx, obj, renderScale);
-            });
+            // ดึงหน้า PDF ต้นฉบับมาเรนเดอร์ใหม่ด้วยความคมชัดสูง
+            const pdfPage = await currentPdfDoc.getPage(targetPage);
+            const hiresViewport = pdfPage.getViewport({scale: exportScale});
 
             const mergedCanvas = document.createElement('canvas');
-            mergedCanvas.width = pdfCanvas.width;
-            mergedCanvas.height = pdfCanvas.height;
+            mergedCanvas.width = hiresViewport.width;
+            mergedCanvas.height = hiresViewport.height;
             const mCtx = mergedCanvas.getContext('2d');
 
             if (format === 'jpg') {
@@ -1774,13 +1807,19 @@
                 mCtx.fillRect(0, 0, mergedCanvas.width, mergedCanvas.height);
             }
 
-            mCtx.drawImage(pdfCanvas, 0, 0);
-            mCtx.drawImage(cleanCanvas, 0, 0);
+            await pdfPage.render({canvasContext: mCtx, viewport: hiresViewport}).promise;
+
+            // วาด Overlay (ข้อความและลายเส้น) ทับด้วยสเกลความละเอียดสูง
+            const objects = pageOverlays[targetPage] || [];
+            objects.forEach(obj => {
+                if (obj.type === 'text') renderText(mCtx, obj, exportScale);
+                else if (obj.type === 'path') renderPath(mCtx, obj, exportScale);
+            });
 
             const mimeType = format === 'png' ? 'image/png' : 'image/jpeg';
             mergedCanvas.toBlob((blob) => {
                 downloadBlob(blob, `REDLINE_PAGE_${targetPage}.${format}`);
-                showToast(`Page ${targetPage} Exported as ${format.toUpperCase()}`, 'success');
+                showToast(`Page ${targetPage} Exported as High-Res ${format.toUpperCase()}`, 'success');
             }, mimeType, 0.95);
         }
 
