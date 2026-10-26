@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>PDF EDITOR - ตัวแก้ไขเอกสารPDF</title>
 
     <!-- Tailwind CSS -->
@@ -255,7 +255,6 @@
         </div>
 
         <div class="flex items-center gap-2 sm:gap-3">
-            <!-- Mobile Hub Button -->
             <button onclick="toggleNavPopup()"
                 class="md:hidden px-2.5 py-1.5 bg-gray-900 hover:bg-gray-800 border border-gray-700 rounded-lg text-gray-100 text-xs font-bold flex items-center gap-1.5">
                 <i class="fa-solid fa-th text-red-500"></i>
@@ -303,7 +302,7 @@
                     <span class="font-extrabold text-lg text-gray-100 group-hover:text-red-400 tracking-wide">Merge
                         PDF</span>
                     <span
-                        class="text-xs text-gray-400 mt-2 font-medium leading-relaxed">รวมไฟล์เอกสารหลายหน้าเข้าด้วยกันเป็นเล่มเดียว</span>
+                        class="text-xs text-gray-400 mt-2 font-medium leading-relaxed">รวมไฟล์เอกสารหลายหน้าเข้าด้วยกันเป็นเล่มเดียว[cite: 1]</span>
                 </a>
 
                 <a href="SplitPDF.html"
@@ -316,7 +315,7 @@
                         PDF</span>
                     <span
                         class="text-xs text-gray-400 mt-2 font-medium leading-relaxed">แยกหน้าหรือตัดเลือกบางส่วนของเอกสาร
-                        PDF</span>
+                        PDF[cite: 1]</span>
                 </a>
 
                 <a href="EditPDF.html"
@@ -328,7 +327,7 @@
                     <span class="font-extrabold text-lg text-gray-100 group-hover:text-red-400 tracking-wide">Edit
                         PDF</span>
                     <span class="text-xs text-gray-400 mt-2 font-medium leading-relaxed">เขียน วาด พิมพ์
-                        และเติมข้อความบนหน้า PDF</span>
+                        และเติมข้อความบนหน้า PDF[cite: 1]</span>
                 </a>
             </div>
         </div>
@@ -401,7 +400,6 @@
                         <i class="fa-solid fa-chevron-down text-[10px]"></i>
                     </button>
 
-                    <!-- Export Dropdown Menu (With Click Outside Handler) -->
                     <div id="exportDropdown"
                         class="hidden absolute right-0 mt-2 z-50 w-60 sm:w-64 bg-white border-2 border-tech-dark rounded-xl shadow-2xl p-2 font-mono text-xs">
                         <div class="px-3 py-2 font-bold text-tech-dark border-b border-tech-border flex justify-between items-center">
@@ -412,7 +410,7 @@
                             class="w-full text-left px-3 py-2.5 rounded hover:bg-crimson-50 hover:text-crimson-600 font-bold transition-colors flex items-center gap-2.5">
                             <i class="fa-solid fa-file-pdf text-crimson-600 text-sm"></i>
                             <div>
-                                <div>PDF Document</div>
+                                <div>Synthesized PDF Document</div>
                                 <div class="text-[9px] text-tech-muted font-normal">Vector & Canvas Multi-Page Render</div>
                             </div>
                         </button>
@@ -471,10 +469,7 @@
                 </div>
             </div>
 
-            <!-- Dynamic Tool Sub-Panel (Hidden on mobile portrait to save space, visible on md+) -->
             <div class="flex-grow overflow-y-auto p-4 space-y-5 font-mono text-xs hidden md:block" id="subToolPanel">
-
-                <!-- PROPS: TEXT TOOL -->
                 <div id="textOptions" class="space-y-3">
                     <div
                         class="text-[10px] text-crimson-600 font-bold uppercase tracking-wider flex items-center gap-1">
@@ -534,7 +529,6 @@
                     </div>
                 </div>
 
-                <!-- SELECTED TEXT PROPERTIES PANEL -->
                 <div id="sidebarTextEditorPanel" class="pt-4 border-t border-tech-border space-y-3 hidden">
                     <div class="text-[10px] text-crimson-600 font-bold uppercase tracking-wider flex items-center gap-1">
                         <i class="fa-solid fa-pen-to-square"></i> Selected Text Studio
@@ -608,7 +602,6 @@
                     </div>
                 </div>
 
-                <!-- PROPS: DRAW TOOL -->
                 <div id="drawOptions" class="space-y-3 hidden">
                     <div
                         class="text-[10px] text-crimson-600 font-bold uppercase tracking-wider flex items-center gap-1">
@@ -651,7 +644,6 @@
                     </div>
                 </div>
 
-                <!-- PROPS: ERASER TOOL -->
                 <div id="eraserOptions" class="space-y-3 hidden">
                     <div
                         class="text-[10px] text-crimson-600 font-bold uppercase tracking-wider flex items-center gap-1">
@@ -666,11 +658,10 @@
                             oninput="updateEraserCursorSize(this.value)" class="w-full accent-crimson-500">
                     </div>
                     <p class="text-[10px] text-tech-muted leading-relaxed">
-                        Drag across canvas to erase text elements or drawn vector strokes in real-time.
+                        Drag across canvas to erase text elements or drawn vector strokes in real-time.[cite: 1]
                     </p>
                 </div>
 
-                <!-- Selected Object Actions (Layer / Delete) -->
                 <div id="objectActionsPanel" class="pt-4 border-t border-tech-border space-y-2 hidden">
                     <div class="text-[10px] text-tech-muted font-bold uppercase tracking-wider">Object Controls</div>
                     <div class="grid grid-cols-2 gap-1.5">
@@ -692,7 +683,6 @@
 
             </div>
 
-            <!-- Page Scale / Zoom Controls Footer -->
             <div
                 class="p-2 md:p-3 border-t border-tech-border font-mono text-xs flex items-center justify-between bg-tech-panel w-auto md:w-full">
                 <button onclick="changeZoom(-0.1)"
@@ -708,12 +698,10 @@
             class="flex-grow bg-tech-darker relative overflow-auto p-4 sm:p-8 flex flex-col items-center justify-start select-none"
             id="viewportContainer" onclick="handleViewportBackgroundClick(event)">
 
-            <!-- Custom Eraser Cursor Element with Eraser Icon -->
             <div id="eraserCursor">
                 <i id="eraserCursorIcon" class="fa-solid fa-eraser"></i>
             </div>
 
-            <!-- Empty Document Upload Screen -->
             <div id="uploadPlaceholder"
                 class="m-auto tech-card p-6 sm:p-10 rounded-2xl max-w-lg w-full text-center border-2 border-dashed border-tech-border relative overflow-hidden group cursor-pointer"
                 onclick="document.getElementById('hiddenFileInput').click()">
@@ -722,14 +710,12 @@
                     class="w-16 h-16 rounded-full bg-crimson-50 border border-crimson-100 text-crimson-500 flex items-center justify-center mx-auto mb-4 text-2xl group-hover:bg-crimson-500 group-hover:text-white transition-all red-glow">
                     <i class="fa-solid fa-file-arrow-up"></i>
                 </div>
-                <h2 class="font-mono text-base sm:text-lg font-bold text-tech-dark uppercase tracking-wide">Load PDF Document</h2>
+                <h2 class="font-mono text-base sm:text-lg font-bold text-tech-dark uppercase tracking-wide">Load PDF Document[cite: 1]</h2>
                 <p class="font-mono text-xs text-tech-muted mt-2">Click to select file or drag & drop PDF here to begin
-                    synthesizing</p>
+                    synthesizing[cite: 1]</p>
             </div>
 
-            <!-- Multi-Page Canvas Rendering List -->
             <div id="canvasPagesContainer" class="space-y-8 my-auto hidden">
-                <!-- Dynamically generated page wrappers go here -->
             </div>
 
         </main>
@@ -745,7 +731,6 @@
             </div>
 
             <div id="thumbnailList" class="flex-grow overflow-x-auto md:overflow-y-auto p-2 md:p-3 space-x-2 md:space-x-0 md:space-y-3 flex md:flex-col">
-                <!-- Thumbnails render here -->
             </div>
         </aside>
 
@@ -789,12 +774,15 @@
         let activeInlineInput = null;
         let zoomTimeout = null;
 
+        // ตัวแปรสำหรับรองรับการ Pinch-to-Zoom (ซูมด้วยสองนิ้ว)
+        let initialPinchDistance = null;
+
         window.onload = () => {
             setupKeyboardShortcuts();
             setupDragAndDrop();
+            setupPinchToZoom();
             updateEraserCursorSize(document.getElementById('eraserSize').value);
 
-            // ตรวจจับการคลิกพื้นที่ว่างรอบนอก เพื่อปิด Pop up Export Menu อัตโนมัติ
             window.addEventListener('click', (e) => {
                 const exportDropdown = document.getElementById('exportDropdown');
                 const exportBtn = document.getElementById('exportDropdownBtn');
@@ -810,6 +798,44 @@
                 preparePrintDOM();
             };
         };
+
+        // ระบบจับพฤติกรรมการถ่างนิ้ว (Pinch-to-Zoom) บนหน้าจอสัมผัส
+        function setupPinchToZoom() {
+            const viewport = document.getElementById('viewportContainer');
+
+            viewport.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 2) {
+                    initialPinchDistance = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
+                }
+            }, { passive: true });
+
+            viewport.addEventListener('touchmove', (e) => {
+                if (e.touches.length === 2 && initialPinchDistance !== null) {
+                    const currentDistance = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
+                    const diff = currentDistance - initialPinchDistance;
+                    if (Math.abs(diff) > 25) {
+                        if (diff > 0) {
+                            changeZoom(0.05);
+                        } else {
+                            changeZoom(-0.05);
+                        }
+                        initialPinchDistance = currentDistance;
+                    }
+                }
+            }, { passive: true });
+
+            viewport.addEventListener('touchend', (e) => {
+                if (e.touches.length < 2) {
+                    initialPinchDistance = null;
+                }
+            });
+        }
 
         function toggleNavPopup() {
             const modal = document.getElementById('navPopupModal');
@@ -1050,6 +1076,7 @@
             };
 
             const startAction = (e) => {
+                if (e.touches && e.touches.length > 1) return; // ข้ามการทำงานถ้าใช้นิ้วซูม
                 activePageIndex = pageNum;
                 const pos = getUnscaledPos(e);
 
@@ -1131,13 +1158,14 @@
             };
 
             const moveAction = (e) => {
+                if (e.touches && e.touches.length > 1) return;
                 const pos = getUnscaledPos(e);
 
                 if (currentTool === 'eraser') {
                     const cursor = document.getElementById('eraserCursor');
                     cursor.style.display = 'block';
-                    cursor.style.left = `${e.clientX}px`;
-                    cursor.style.top = `${e.clientY}px`;
+                    cursor.style.left = `${e.touches ? e.touches[0].clientX : e.clientX}px`;
+                    cursor.style.top = `${e.touches ? e.touches[0].clientY : e.clientY}px`;
                 } else {
                     document.getElementById('eraserCursor').style.display = 'none';
                 }
@@ -1216,8 +1244,8 @@
                 }
             });
 
-            canvas.addEventListener('touchstart', (e) => {startAction(e); e.preventDefault();});
-            canvas.addEventListener('touchmove', (e) => {moveAction(e); e.preventDefault();});
+            canvas.addEventListener('touchstart', (e) => { startAction(e); }, { passive: true });
+            canvas.addEventListener('touchmove', (e) => { moveAction(e); }, { passive: true });
             canvas.addEventListener('touchend', endAction);
         }
 
