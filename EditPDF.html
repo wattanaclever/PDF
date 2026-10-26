@@ -1047,9 +1047,7 @@
             cursor.style.height = `${val * 2}px`;
         }
 
-        // --- ตำแหน่งที่แก้: เพิ่มตัวแปรสำหรับจัดการ Touch / Pinch Zoom ---
-        let touchStartDist = 0;
-        let isPinching = false;
+        // --- ตำแหน่งที่แก้: รองรับการใช้นิ้วสัมผัสเลื่อนดูเอกสาร (Pan Scroll) ได้อย่างอิสระบนจอเล็ก โดยถอดการซูมด้วยนิ้วออก ---
         let lastTouchX = 0;
         let lastTouchY = 0;
         let isPanScrolling = false;
@@ -1069,17 +1067,7 @@
             };
 
             const startAction = (e) => {
-                // --- ตำแหน่งที่แก้: รองรับ Multi-touch สำหรับ Pinch Zoom ---
-                if (e.touches && e.touches.length === 2) {
-                    isPinching = true;
-                    touchStartDist = Math.hypot(
-                        e.touches[0].clientX - e.touches[1].clientX,
-                        e.touches[0].clientY - e.touches[1].clientY
-                    );
-                    return;
-                }
-
-                // --- ตำแหน่งที่แก้: โหมดหน้าจอเล็ก: ถ้าไม่ใช่เครื่องมือวาด/เลือก ให้ใช้นิ้วเลื่อน Pan Scroll เอกสารได้ ---
+                // --- ตำแหน่งที่แก้: โหมดหน้าจอเล็ก: ใช้สัมผัสเพื่อเลื่อนเอกสารดูแบบรวดเร็ว (Pan Scroll) เมื่อใช้เครื่องมือ Select ---
                 if (e.touches && e.touches.length === 1 && (currentTool === 'select' && window.innerWidth < 768)) {
                     isPanScrolling = true;
                     lastTouchX = e.touches[0].clientX;
@@ -1168,21 +1156,7 @@
             };
 
             const moveAction = (e) => {
-                // --- ตำแหน่งที่แก้: ระบบ Pinch-to-Zoom ด้วยการถ่าง/หุบนิ้ว ---
-                if (isPinching && e.touches && e.touches.length === 2) {
-                    const currentDist = Math.hypot(
-                        e.touches[0].clientX - e.touches[1].clientX,
-                        e.touches[0].clientY - e.touches[1].clientY
-                    );
-                    const diff = currentDist - touchStartDist;
-                    if (Math.abs(diff) > 30) {
-                        changeZoom(diff > 0 ? 0.05 : -0.05);
-                        touchStartDist = currentDist;
-                    }
-                    return;
-                }
-
-                // --- ตำแหน่งที่แก้: ระบบ Touch Pan Scrolling สำหรับหน้าจอเล็ก ---
+                // --- ตำแหน่งที่แก้: ประมวลผลการใช้นิ้วปัดเลื่อนหน้าจอ (Pan Scroll) บนจอเล็ก ---
                 if (isPanScrolling && e.touches && e.touches.length === 1) {
                     const deltaX = e.touches[0].clientX - lastTouchX;
                     const deltaY = e.touches[0].clientY - lastTouchY;
@@ -1236,7 +1210,6 @@
             };
 
             const endAction = () => {
-                isPinching = false;
                 isPanScrolling = false;
 
                 if (isDragging || isResizing) {
@@ -1282,8 +1255,8 @@
                 }
             });
 
-            canvas.addEventListener('touchstart', (e) => {startAction(e);}, {passive: false});
-            canvas.addEventListener('touchmove', (e) => {moveAction(e);}, {passive: false});
+            canvas.addEventListener('touchstart', (e) => { startAction(e); }, {passive: false});
+            canvas.addEventListener('touchmove', (e) => { moveAction(e); }, {passive: false});
             canvas.addEventListener('touchend', endAction);
         }
         function showSidebarTextEditor(textObj) {
