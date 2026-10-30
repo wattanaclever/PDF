@@ -1127,6 +1127,17 @@
             };
 
             const startAction = (e) => {
+                // อัปเดตเงื่อนไข: หากใช้ 2 นิ้วสัมผัส จะเปลี่ยนเป็นโหมดเลื่อนหน้าจอ (Pan) ทันทีไม่ให้ฟีเจอร์วาดทำงาน
+                if (e.touches && e.touches.length === 2) {
+                    isPanScrolling = true;
+                    isDrawing = false;
+                    isDragging = false;
+                    isResizing = false;
+                    lastTouchX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+                    lastTouchY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+                    return;
+                }
+
                 if (e.touches && e.touches.length === 1 && (currentTool === 'select' && window.innerWidth < 768)) {
                     isPanScrolling = true;
                     lastTouchX = e.touches[0].clientX;
@@ -1215,14 +1226,25 @@
             };
 
             const moveAction = (e) => {
-                if (isPanScrolling && e.touches && e.touches.length === 1) {
-                    const deltaX = e.touches[0].clientX - lastTouchX;
-                    const deltaY = e.touches[0].clientY - lastTouchY;
+                // ควบคุมการเลื่อนหน้าจอด้วย 2 นิ้ว
+                if (isPanScrolling && e.touches) {
+                    let clientX, clientY;
+                    if (e.touches.length === 2) {
+                        clientX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+                        clientY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+                    } else if (e.touches.length === 1) {
+                        clientX = e.touches[0].clientX;
+                        clientY = e.touches[0].clientY;
+                    } else {
+                        return;
+                    }
+                    const deltaX = clientX - lastTouchX;
+                    const deltaY = clientY - lastTouchY;
                     const vp = document.getElementById('viewportContainer');
                     vp.scrollLeft -= deltaX;
                     vp.scrollTop -= deltaY;
-                    lastTouchX = e.touches[0].clientX;
-                    lastTouchY = e.touches[0].clientY;
+                    lastTouchX = clientX;
+                    lastTouchY = clientY;
                     return;
                 }
 
@@ -1713,13 +1735,12 @@
             }
         }
 
-        // --- ระบบเตรียมข้อมูลสำหรับพิมพ์แบบ Async รองรับการแสดงผลครบถ้วนสมบูรณ์ ---
         async function preparePrintDOM() {
             if (!currentPdfDoc) return;
             const printSection = document.getElementById('printSection');
             printSection.innerHTML = '';
 
-            const printScale = 2.5; // ความละเอียดสูงคงที่ระดับพิมพ์ 300 DPI
+            const printScale = 2.5;
 
             for (let i = 1; i <= pageCount; i++) {
                 const pdfPage = await currentPdfDoc.getPage(i);
