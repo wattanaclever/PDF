@@ -137,9 +137,10 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            color: #FF1E42;
+            color: #000000;
             font-size: 14px;
         }
+
 
         .cursor-tool-select {
             cursor: default !important;
@@ -169,7 +170,7 @@
         .inline-text-editor {
             position: absolute;
             background: rgba(255, 255, 255, 0.95);
-            border: 2px solid #FF1E42;
+            border: 2px solid #000000;
             outline: none;
             padding: 4px 8px;
             box-shadow: 0 4px 20px rgba(255, 30, 66, 0.25);
@@ -252,7 +253,7 @@
             <button onclick="toggleNavPopup()"
                 class="px-5 py-2.5 bg-gray-900 hover:bg-gray-800 border border-gray-700 rounded-full font-bold flex items-center gap-2.5 text-gray-100 transition-all shadow-md group text-sm">
                 <i class="fa-solid fa-th text-red-500 group-hover:scale-110 transition-transform"></i>
-                <span>All Tools Hub</span>
+                <span>รวมเครื่องมือจัดการPDF</span>
                 <i class="fa-solid fa-chevron-down text-xs text-gray-400"></i>
             </button>
         </div>
@@ -261,7 +262,7 @@
             <button onclick="toggleNavPopup()"
                 class="md:hidden px-2.5 py-1.5 bg-gray-900 hover:bg-gray-800 border border-gray-700 rounded-lg text-gray-100 text-xs font-bold flex items-center gap-1.5">
                 <i class="fa-solid fa-th text-red-500"></i>
-                <span>Hub</span>
+                <span>รวมเครื่องมือจัดการPDF</span>
             </button>
             <span class="hidden md:inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"
                 title="System Online"></span>
@@ -284,7 +285,7 @@
                     </div>
                     <div>
                         <h3 class="text-xl sm:text-2xl font-extrabold text-white tracking-wide">
-                            Select PDF Tool
+                            เลือกประเภทการใช้งาน
                         </h3>
                         <p class="text-sm text-gray-400 mt-1">เลือกเครื่องมือจัดการเอกสารที่คุณต้องการใช้งาน</p>
                     </div>
@@ -355,7 +356,7 @@
                     PDF EDITOR
                 </div>
                 <div class="flex items-center gap-1 sm:gap-2">
-                    <span class="font-mono text-xs sm:text-sm font-bold tracking-tight text-tech-dark">PDF EDITOR</span>
+                
                     <span
                         class="text-[9px] font-mono tracking-widest text-crimson-600 bg-crimson-50 border border-crimson-100 px-1.5 py-0.5 rounded uppercase font-semibold">V1.0</span>
                 </div>
@@ -374,20 +375,20 @@
                         class="px-2 py-1 rounded text-tech-dark hover:bg-white disabled:opacity-30 transition-all font-mono text-xs flex items-center gap-1 font-bold"
                         title="Undo Action (Ctrl+Z)">
                         <i class="fa-solid fa-rotate-left text-crimson-600"></i>
-                        <span class="hidden md:inline">UNDO</span>
+                        <span class="hidden md:inline">ย้อนกลับ</span>
                     </button>
                     <button id="btnRedo" onclick="executeRedo()" disabled
                         class="px-2 py-1 rounded text-tech-dark hover:bg-white disabled:opacity-30 transition-all font-mono text-xs flex items-center gap-1 font-bold"
                         title="Redo Action (Ctrl+Y)">
                         <i class="fa-solid fa-rotate-right text-crimson-600"></i>
-                        <span class="hidden md:inline">REDO</span>
+                        <span class="hidden md:inline">ถัดไป</span>
                     </button>
                 </div>
 
                 <button onclick="document.getElementById('hiddenFileInput').click()"
                     class="px-2.5 sm:px-3 py-1.5 rounded bg-tech-panel hover:bg-tech-border text-tech-dark font-mono text-xs font-bold transition-all border border-tech-border flex items-center gap-1.5">
                     <i class="fa-solid fa-folder-open text-crimson-600"></i>
-                    <span class="hidden sm:inline">OPEN</span>
+                    <span class="hidden sm:inline">นำเข้าเอกสาร</span>
                 </button>
 
                 <button onclick="triggerDirectPrint()"
@@ -400,7 +401,7 @@
                     <button id="exportDropdownBtn" onclick="toggleExportMenu(event)"
                         class="px-3 sm:px-4 py-1.5 rounded bg-tech-dark hover:bg-crimson-600 text-white font-mono text-xs font-bold tracking-wider transition-all flex items-center gap-1.5 sm:gap-2 red-glow">
                         <i class="fa-solid fa-download text-xs"></i>
-                        <span>EXPORT</span>
+                        <span>ส่งออก..</span>
                         <i class="fa-solid fa-chevron-down text-[10px]"></i>
                     </button>
 
@@ -464,22 +465,22 @@
                     <button id="toolSelect" onclick="setTool('select')"
                         class="tool-btn active p-2.5 rounded-lg border border-tech-border text-tech-dark flex items-center justify-center gap-2 text-xs font-bold transition-all">
                         <i class="fa-solid fa-arrow-pointer text-crimson-500 text-sm"></i>
-                        <span>SELECT</span>
+                        <span>เลือก</span>
                     </button>
                     <button id="toolText" onclick="setTool('text')"
                         class="tool-btn p-2.5 rounded-lg border border-tech-border text-tech-dark flex items-center justify-center gap-2 text-xs font-bold transition-all">
                         <i class="fa-solid fa-font text-crimson-500 text-sm"></i>
-                        <span>TEXT</span>
+                        <span>ข้อความ</span>
                     </button>
                     <button id="toolDraw" onclick="setTool('draw')"
                         class="tool-btn p-2.5 rounded-lg border border-tech-border text-tech-dark flex items-center justify-center gap-2 text-xs font-bold transition-all">
                         <i class="fa-solid fa-pen-nib text-crimson-500 text-sm"></i>
-                        <span>DRAW</span>
+                        <span>เส้นอิสระ</span>
                     </button>
                     <button id="toolEraser" onclick="setTool('eraser')"
                         class="tool-btn p-2.5 rounded-lg border border-tech-border text-tech-dark flex items-center justify-center gap-2 text-xs font-bold transition-all">
                         <i class="fa-solid fa-eraser text-crimson-500 text-sm"></i>
-                        <span>ERASER</span>
+                        <span>ยางลบ</span>
                     </button>
                 </div>
             </div>
@@ -530,7 +531,7 @@
                         </div>
                         <div>
                             <label class="text-[10px] text-tech-muted font-bold block mb-1">COLOR</label>
-                            <input type="color" id="textColor" value="#FF1E42"
+                            <input type="color" id="textColor" value="#000000"
                                 onchange="updateActiveTextProp('color', this.value)"
                                 class="w-full h-8 bg-white border border-tech-border rounded cursor-pointer p-0.5">
                         </div>
@@ -652,7 +653,7 @@
 
                     <div>
                         <label class="text-[10px] text-tech-muted font-bold block mb-1">STROKE COLOR</label>
-                        <input type="color" id="drawColor" value="#FF1E42" onchange="updateCanvasCursors()"
+                        <input type="color" id="drawColor" value="#000000" onchange="updateCanvasCursors()"
                             class="w-full h-8 bg-white border border-tech-border rounded cursor-pointer p-0.5">
                     </div>
 
@@ -740,8 +741,7 @@
                 </div>
                 <h2 class="font-mono text-base sm:text-lg font-bold text-tech-dark uppercase tracking-wide">Load PDF
                     Document</h2>
-                <p class="font-mono text-xs text-tech-muted mt-2">Click to select file or drag & drop PDF here to begin
-                    synthesizing</p>
+                <p class="font-mono text-xs text-tech-muted mt-2">Click to select file or drag & drop PDF here </p>
             </div>
 
             <!-- Multi-Page Canvas Rendering List -->
