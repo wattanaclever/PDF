@@ -71,8 +71,8 @@
         }
 
         ::-webkit-scrollbar {
-            width: 5px;
-            height: 5px;
+            width: 6px;
+            height: 6px;
         }
 
         ::-webkit-scrollbar-track {
@@ -81,7 +81,7 @@
 
         ::-webkit-scrollbar-thumb {
             background: #FF1E42;
-            border-radius: 2px;
+            border-radius: 3px;
         }
 
         .tech-card {
@@ -161,6 +161,7 @@
             will-change: transform, width, height;
             transform: translateZ(0);
             backface-visibility: hidden;
+            flex-shrink: 0;
         }
 
         .inline-text-editor {
@@ -255,7 +256,6 @@
         </div>
 
         <div class="flex items-center gap-2 sm:gap-3">
-            <!-- Mobile Hub Button -->
             <button onclick="toggleNavPopup()"
                 class="md:hidden px-2.5 py-1.5 bg-gray-900 hover:bg-gray-800 border border-gray-700 rounded-lg text-gray-100 text-xs font-bold flex items-center gap-1.5">
                 <i class="fa-solid fa-th text-red-500"></i>
@@ -447,37 +447,43 @@
 
         <!-- LEFT SIDEBAR: TOOLBAR & SUB-PROPERTIES -->
         <aside
-            class="w-full md:w-72 bg-white border-r border-tech-border flex flex-row md:flex-col flex-shrink-0 z-20 shadow-sm">
+            class="w-full md:w-72 bg-white border-r border-tech-border flex flex-col flex-shrink-0 z-20 shadow-sm">
             <div
-                class="p-2 md:p-3 border-b border-tech-border font-mono flex md:block items-center justify-between w-full">
-                <div class="text-[10px] text-tech-muted font-bold tracking-widest uppercase mb-2 hidden md:block">
-                    Primary Tools</div>
-                <div class="grid grid-cols-4 md:grid-cols-2 gap-1.5 w-full">
+                class="p-2 md:p-3 border-b border-tech-border font-mono flex flex-col w-full">
+                <div class="flex items-center justify-between w-full mb-2">
+                    <div class="text-[10px] text-tech-muted font-bold tracking-widest uppercase">
+                        Primary Tools</div>
+                    <button onclick="toggleMobileTextOptions()" id="btnToggleTextOpts" class="md:hidden px-2.5 py-1 bg-tech-dark text-white rounded text-[10px] font-bold flex items-center gap-1.5 shadow-sm">
+                        <i class="fa-solid fa-eye-slash" id="textOptsToggleIcon"></i>
+                        <span id="textOptsToggleText">Hide Text Tools</span>
+                    </button>
+                </div>
+                <div class="grid grid-cols-4 md:grid-cols-2 gap-2 w-full">
                     <button id="toolSelect" onclick="setTool('select')"
-                        class="tool-btn active p-2 md:p-2.5 rounded border border-tech-border text-tech-dark flex items-center justify-center md:justify-start gap-2 text-xs font-bold transition-all">
-                        <i class="fa-solid fa-arrow-pointer text-crimson-500 text-sm w-4 text-center"></i>
-                        <span class="hidden md:inline">SELECT</span>
+                        class="tool-btn active p-2.5 rounded-lg border border-tech-border text-tech-dark flex items-center justify-center gap-2 text-xs font-bold transition-all">
+                        <i class="fa-solid fa-arrow-pointer text-crimson-500 text-sm"></i>
+                        <span>SELECT</span>
                     </button>
                     <button id="toolText" onclick="setTool('text')"
-                        class="tool-btn p-2 md:p-2.5 rounded border border-tech-border text-tech-dark flex items-center justify-center md:justify-start gap-2 text-xs font-bold transition-all">
-                        <i class="fa-solid fa-font text-crimson-500 text-sm w-4 text-center"></i>
-                        <span class="hidden md:inline">TEXT</span>
+                        class="tool-btn p-2.5 rounded-lg border border-tech-border text-tech-dark flex items-center justify-center gap-2 text-xs font-bold transition-all">
+                        <i class="fa-solid fa-font text-crimson-500 text-sm"></i>
+                        <span>TEXT</span>
                     </button>
                     <button id="toolDraw" onclick="setTool('draw')"
-                        class="tool-btn p-2 md:p-2.5 rounded border border-tech-border text-tech-dark flex items-center justify-center md:justify-start gap-2 text-xs font-bold transition-all">
-                        <i class="fa-solid fa-pen-nib text-crimson-500 text-sm w-4 text-center"></i>
-                        <span class="hidden md:inline">FREE DRAW</span>
+                        class="tool-btn p-2.5 rounded-lg border border-tech-border text-tech-dark flex items-center justify-center gap-2 text-xs font-bold transition-all">
+                        <i class="fa-solid fa-pen-nib text-crimson-500 text-sm"></i>
+                        <span>DRAW</span>
                     </button>
                     <button id="toolEraser" onclick="setTool('eraser')"
-                        class="tool-btn p-2 md:p-2.5 rounded border border-tech-border text-tech-dark flex items-center justify-center md:justify-start gap-2 text-xs font-bold transition-all">
-                        <i class="fa-solid fa-eraser text-crimson-500 text-sm w-4 text-center"></i>
-                        <span class="hidden md:inline">ERASER</span>
+                        class="tool-btn p-2.5 rounded-lg border border-tech-border text-tech-dark flex items-center justify-center gap-2 text-xs font-bold transition-all">
+                        <i class="fa-solid fa-eraser text-crimson-500 text-sm"></i>
+                        <span>ERASER</span>
                     </button>
                 </div>
             </div>
 
-            <!-- Dynamic Tool Sub-Panel (Hidden on mobile portrait to save space, visible on md+) -->
-            <div class="flex-grow overflow-y-auto p-4 space-y-5 font-mono text-xs hidden md:block" id="subToolPanel">
+            <!-- Dynamic Tool Sub-Panel -->
+            <div class="overflow-y-auto max-h-48 md:max-h-none md:flex-grow p-3 sm:p-4 space-y-4 font-mono text-xs block transition-all duration-300" id="subToolPanel">
 
                 <!-- PROPS: TEXT TOOL -->
                 <div id="textOptions" class="space-y-3">
@@ -702,7 +708,7 @@
 
             <!-- Page Scale / Zoom Controls Footer -->
             <div
-                class="p-2 md:p-3 border-t border-tech-border font-mono text-xs flex items-center justify-between bg-tech-panel w-auto md:w-full">
+                class="p-2 md:p-3 border-t border-tech-border font-mono text-xs flex items-center justify-between bg-tech-panel w-full">
                 <button onclick="changeZoom(-0.1)"
                     class="w-6 h-6 md:w-7 md:h-7 rounded bg-white border border-tech-border hover:bg-crimson-50 text-tech-dark font-bold">-</button>
                 <span id="zoomDisplay" class="font-bold text-crimson-600 text-xs">100%</span>
@@ -713,7 +719,7 @@
 
         <!-- CENTER VIEWPORT: CANVAS DISPLAY ENGINE -->
         <main
-            class="flex-grow bg-tech-darker relative overflow-auto p-4 sm:p-8 flex flex-col items-center justify-start select-none"
+            class="flex-grow bg-tech-darker relative overflow-auto p-4 sm:p-8 flex items-start justify-start select-none"
             id="viewportContainer" onclick="handleViewportBackgroundClick(event)">
 
             <!-- Custom Eraser Cursor Element with Eraser Icon -->
@@ -737,7 +743,7 @@
             </div>
 
             <!-- Multi-Page Canvas Rendering List -->
-            <div id="canvasPagesContainer" class="space-y-8 my-auto hidden">
+            <div id="canvasPagesContainer" class="space-y-8 m-auto hidden flex flex-col items-center min-w-max">
                 <!-- Dynamically generated page wrappers go here -->
             </div>
 
@@ -745,18 +751,21 @@
 
         <!-- RIGHT SIDEBAR: PAGE THUMBNAILS & LAYER NAVIGATOR -->
         <aside
-            class="w-full md:w-60 bg-white border-t md:border-t-0 md:border-l border-tech-border flex flex-row md:flex-col flex-shrink-0 z-20 h-24 md:h-auto">
-            <div
-                class="p-2 md:p-3 border-r md:border-r-0 md:border-b border-tech-border font-mono flex flex-col md:flex-row items-center justify-between">
-                <span class="text-[10px] text-tech-dark font-bold uppercase tracking-wider hidden md:inline">Pages
-                    Overview</span>
-                <span id="pageCountBadge"
-                    class="text-[10px] bg-crimson-50 text-crimson-600 border border-crimson-100 font-bold px-2 py-0.5 rounded">0
-                    Pages</span>
+            class="w-full md:w-60 bg-white border-t md:border-t-0 md:border-l border-tech-border flex flex-col flex-shrink-0 z-20 h-auto">
+            
+            <div class="p-2 md:p-3 border-b border-tech-border font-mono flex items-center justify-between bg-tech-panel">
+                <span class="text-[10px] text-tech-dark font-bold uppercase tracking-wider">Pages Overview</span>
+                <div class="flex items-center gap-2">
+                    <span id="pageCountBadge" class="text-[10px] bg-crimson-50 text-crimson-600 border border-crimson-100 font-bold px-2 py-0.5 rounded">0 Pages</span>
+                    <button onclick="toggleMobilePagesOverview()" id="btnToggleOverview" class="md:hidden px-2 py-0.5 bg-tech-dark text-white rounded text-[10px] font-bold flex items-center gap-1">
+                        <i class="fa-solid fa-eye-slash" id="overviewToggleIcon"></i>
+                        <span id="overviewToggleText">Hide</span>
+                    </button>
+                </div>
             </div>
 
             <div id="thumbnailList"
-                class="flex-grow overflow-x-auto md:overflow-y-auto p-2 md:p-3 space-x-2 md:space-x-0 md:space-y-3 flex md:flex-col">
+                class="overflow-x-auto md:overflow-y-auto p-2 md:p-3 space-x-2 md:space-x-0 md:space-y-3 flex md:flex-col transition-all duration-300">
                 <!-- Thumbnails render here -->
             </div>
         </aside>
@@ -806,7 +815,24 @@
             setupDragAndDrop();
             updateEraserCursorSize(document.getElementById('eraserSize').value);
 
-            // ตรวจจับการคลิกพื้นที่ว่างรอบนอก เพื่อปิด Pop up Export Menu อัตโนมัติ
+            window.addEventListener('resize', () => {
+                const thumbnailList = document.getElementById('thumbnailList');
+                const subToolPanel = document.getElementById('subToolPanel');
+                const btnOverviewText = document.getElementById('overviewToggleText');
+                const overviewIcon = document.getElementById('overviewToggleIcon');
+                const btnTextText = document.getElementById('textOptsToggleText');
+                const textIcon = document.getElementById('textOptsToggleIcon');
+                
+                if (window.innerWidth >= 768) {
+                    thumbnailList.classList.remove('hidden');
+                    subToolPanel.classList.remove('hidden');
+                    if(btnOverviewText) btnOverviewText.textContent = 'Hide';
+                    if(overviewIcon) overviewIcon.className = 'fa-solid fa-eye-slash';
+                    if(btnTextText) btnTextText.textContent = 'Hide Text Tools';
+                    if(textIcon) textIcon.className = 'fa-solid fa-eye-slash';
+                }
+            });
+
             window.addEventListener('click', (e) => {
                 const exportDropdown = document.getElementById('exportDropdown');
                 const exportBtn = document.getElementById('exportDropdownBtn');
@@ -816,12 +842,39 @@
                     }
                 }
             });
-
-            window.onbeforeprint = () => {
-                closeActiveInlineEditor();
-                preparePrintDOM();
-            };
         };
+
+        function toggleMobilePagesOverview() {
+            const thumbnailList = document.getElementById('thumbnailList');
+            const btnText = document.getElementById('overviewToggleText');
+            const icon = document.getElementById('overviewToggleIcon');
+            
+            if (thumbnailList.classList.contains('hidden')) {
+                thumbnailList.classList.remove('hidden');
+                btnText.textContent = 'Hide';
+                icon.className = 'fa-solid fa-eye-slash';
+            } else {
+                thumbnailList.classList.add('hidden');
+                btnText.textContent = 'Unhide';
+                icon.className = 'fa-solid fa-eye';
+            }
+        }
+
+        function toggleMobileTextOptions() {
+            const subToolPanel = document.getElementById('subToolPanel');
+            const btnText = document.getElementById('textOptsToggleText');
+            const icon = document.getElementById('textOptsToggleIcon');
+            
+            if (subToolPanel.classList.contains('hidden')) {
+                subToolPanel.classList.remove('hidden');
+                btnText.textContent = 'Hide Text Tools';
+                icon.className = 'fa-solid fa-eye-slash';
+            } else {
+                subToolPanel.classList.add('hidden');
+                btnText.textContent = 'Unhide Text Tools';
+                icon.className = 'fa-solid fa-eye';
+            }
+        }
 
         function toggleNavPopup() {
             const modal = document.getElementById('navPopupModal');
@@ -875,6 +928,14 @@
 
                 document.getElementById('uploadPlaceholder').classList.add('hidden');
                 document.getElementById('canvasPagesContainer').classList.remove('hidden');
+
+                if (window.innerWidth < 768) {
+                    zoomLevel = 0.5;
+                    document.getElementById('zoomDisplay').textContent = '50%';
+                } else {
+                    zoomLevel = 1.0;
+                    document.getElementById('zoomDisplay').textContent = '100%';
+                }
 
                 await renderAllPages();
                 await renderThumbnails();
@@ -1047,7 +1108,6 @@
             cursor.style.height = `${val * 2}px`;
         }
 
-        // --- ตำแหน่งที่แก้: รองรับการใช้นิ้วสัมผัสเลื่อนดูเอกสาร (Pan Scroll) ได้อย่างอิสระบนจอเล็ก โดยถอดการซูมด้วยนิ้วออก ---
         let lastTouchX = 0;
         let lastTouchY = 0;
         let isPanScrolling = false;
@@ -1067,7 +1127,6 @@
             };
 
             const startAction = (e) => {
-                // --- ตำแหน่งที่แก้: โหมดหน้าจอเล็ก: ใช้สัมผัสเพื่อเลื่อนเอกสารดูแบบรวดเร็ว (Pan Scroll) เมื่อใช้เครื่องมือ Select ---
                 if (e.touches && e.touches.length === 1 && (currentTool === 'select' && window.innerWidth < 768)) {
                     isPanScrolling = true;
                     lastTouchX = e.touches[0].clientX;
@@ -1156,7 +1215,6 @@
             };
 
             const moveAction = (e) => {
-                // --- ตำแหน่งที่แก้: ประมวลผลการใช้นิ้วปัดเลื่อนหน้าจอ (Pan Scroll) บนจอเล็ก ---
                 if (isPanScrolling && e.touches && e.touches.length === 1) {
                     const deltaX = e.touches[0].clientX - lastTouchX;
                     const deltaY = e.touches[0].clientY - lastTouchY;
@@ -1259,6 +1317,7 @@
             canvas.addEventListener('touchmove', (e) => { moveAction(e); }, {passive: false});
             canvas.addEventListener('touchend', endAction);
         }
+
         function showSidebarTextEditor(textObj) {
             const panel = document.getElementById('sidebarTextEditorPanel');
             document.getElementById('sidebarFontFamily').value = textObj.fontFamily;
@@ -1654,37 +1713,45 @@
             }
         }
 
-        function preparePrintDOM() {
+        // --- ระบบเตรียมข้อมูลสำหรับพิมพ์แบบ Async รองรับการแสดงผลครบถ้วนสมบูรณ์ ---
+        async function preparePrintDOM() {
             if (!currentPdfDoc) return;
             const printSection = document.getElementById('printSection');
             printSection.innerHTML = '';
 
+            const printScale = 2.5; // ความละเอียดสูงคงที่ระดับพิมพ์ 300 DPI
+
             for (let i = 1; i <= pageCount; i++) {
-                const pageWrapper = document.getElementById(`pageWrapper_${i}`);
-                if (!pageWrapper) continue;
-                const pdfCanvas = pageWrapper.querySelector('canvas');
+                const pdfPage = await currentPdfDoc.getPage(i);
+                const printViewport = pdfPage.getViewport({scale: printScale});
 
-                const tempOverlayCanvas = document.createElement('canvas');
-                tempOverlayCanvas.width = pdfCanvas.width;
-                tempOverlayCanvas.height = pdfCanvas.height;
-                const tempCtx = tempOverlayCanvas.getContext('2d');
+                const printPdfCanvas = document.createElement('canvas');
+                printPdfCanvas.width = printViewport.width;
+                printPdfCanvas.height = printViewport.height;
+                const pdfCtx = printPdfCanvas.getContext('2d');
 
-                const renderScale = zoomLevel * 1.5;
+                await pdfPage.render({canvasContext: pdfCtx, viewport: printViewport}).promise;
+
+                const printOverlayCanvas = document.createElement('canvas');
+                printOverlayCanvas.width = printViewport.width;
+                printOverlayCanvas.height = printViewport.height;
+                const overlayCtx = printOverlayCanvas.getContext('2d');
+
                 const objects = pageOverlays[i] || [];
                 objects.forEach(obj => {
-                    if (obj.type === 'text') renderText(tempCtx, obj, renderScale);
-                    else if (obj.type === 'path') renderPath(tempCtx, obj, renderScale);
+                    if (obj.type === 'text') renderText(overlayCtx, obj, printScale);
+                    else if (obj.type === 'path') renderPath(overlayCtx, obj, printScale);
                 });
 
                 const mergedCanvas = document.createElement('canvas');
-                mergedCanvas.width = pdfCanvas.width;
-                mergedCanvas.height = pdfCanvas.height;
+                mergedCanvas.width = printViewport.width;
+                mergedCanvas.height = printViewport.height;
                 const mCtx = mergedCanvas.getContext('2d');
 
                 mCtx.fillStyle = '#FFFFFF';
                 mCtx.fillRect(0, 0, mergedCanvas.width, mergedCanvas.height);
-                mCtx.drawImage(pdfCanvas, 0, 0);
-                mCtx.drawImage(tempOverlayCanvas, 0, 0);
+                mCtx.drawImage(printPdfCanvas, 0, 0);
+                mCtx.drawImage(printOverlayCanvas, 0, 0);
 
                 const pageImg = document.createElement('img');
                 pageImg.src = mergedCanvas.toDataURL('image/png');
@@ -1697,12 +1764,12 @@
             }
         }
 
-        function triggerDirectPrint() {
+        async function triggerDirectPrint() {
             if (!currentPdfDoc) return;
             closeActiveInlineEditor();
-            showToast('Preparing Pixel-Perfect Print Stream...', 'info');
-            preparePrintDOM();
-            setTimeout(() => {window.print();}, 250);
+            showToast('Preparing Pixel-Perfect High-Res Print Stream...', 'info');
+            await preparePrintDOM();
+            setTimeout(() => { window.print(); }, 300);
         }
 
         function toggleExportMenu(e) {
@@ -1710,7 +1777,6 @@
             document.getElementById('exportDropdown').classList.toggle('hidden');
         }
 
-        // --- ตำแหน่งที่แก้: ฟังก์ชัน Export PDF ให้อ้างอิงความละเอียดต้นฉบับ (High Fidelity / Vector Scale) ---
         async function exportAsPDF() {
             if (!currentPdfDoc) return;
             closeActiveInlineEditor();
@@ -1723,8 +1789,6 @@
 
                 for (let i = 1; i <= pageCount; i++) {
                     const dim = pageDimensions[i] || {width: 595, height: 842};
-
-                    // บังคับใช้ความละเอียดสูง (Scale 3.0) คงความคมชัดต้นฉบับ 100% แยกอิสระจาก Zoom บนหน้าจอ
                     const exportScale = 3.0;
 
                     const cleanCanvas = document.createElement('canvas');
@@ -1756,7 +1820,6 @@
             }
         }
 
-        // --- ตำแหน่งที่แก้: ฟังก์ชัน Export Image ให้เรนเดอร์ความคมชัดสูงระดับ 3x ---
         async function exportAsImage(format) {
             if (!currentPdfDoc) return;
             closeActiveInlineEditor();
@@ -1764,9 +1827,8 @@
 
             const targetPage = activePageIndex || 1;
             const dim = pageDimensions[targetPage] || {width: 595, height: 842};
-            const exportScale = 3.0; // คงความคมชัดต้นฉบับ
+            const exportScale = 3.0;
 
-            // ดึงหน้า PDF ต้นฉบับมาเรนเดอร์ใหม่ด้วยความคมชัดสูง
             const pdfPage = await currentPdfDoc.getPage(targetPage);
             const hiresViewport = pdfPage.getViewport({scale: exportScale});
 
@@ -1782,7 +1844,6 @@
 
             await pdfPage.render({canvasContext: mCtx, viewport: hiresViewport}).promise;
 
-            // วาด Overlay (ข้อความและลายเส้น) ทับด้วยสเกลความละเอียดสูง
             const objects = pageOverlays[targetPage] || [];
             objects.forEach(obj => {
                 if (obj.type === 'text') renderText(mCtx, obj, exportScale);
